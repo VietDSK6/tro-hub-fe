@@ -13,7 +13,6 @@ export default function Topbar(){
           <Link to="/favorites" className="btn btn-ghost">Yêu thích</Link>
           <Link to="/matching" className="btn btn-ghost">Gợi ý</Link>
           <Link to="/profile" className="btn btn-ghost">Hồ sơ</Link>
-          <Link to={`/messages/${encodeURIComponent(localStorage.getItem('lastPeer')||'peer')}`} className="btn btn-ghost">Tin nhắn</Link>
           {!isAuthed
             ? <Link to="/auth" state={{from:loc.pathname}} className="btn btn-primary">Đăng nhập</Link>
             : <button className="btn btn-ghost" onClick={logout}>Đăng xuất</button>}
