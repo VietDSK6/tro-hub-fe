@@ -5,8 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MapPicker from "@/components/map/MapPicker";
 import { useState } from "react";
-import { useToast } from "@/hooks/useToast";
-import Toast from "@/components/ui/Toast";
+import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 
 const schema = z.object({
@@ -20,7 +19,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function NewListing(){
   const [point, setPoint] = useState<[number,number]|null>(null);
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToastContext();
   
   const { register, handleSubmit, setValue, formState:{errors} } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -47,15 +46,6 @@ export default function NewListing(){
 
   return (
     <div className="container-app p-4 max-w-2xl space-y-3">
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-      
       <h1 className="h1">Đăng tin</h1>
       <form className="card p-4 space-y-3" onSubmit={handleSubmit((d)=> mutation.mutate(d))}>
         <div>

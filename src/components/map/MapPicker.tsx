@@ -12,10 +12,10 @@ function ClickHandler({ onPick }:{ onPick:(lng:number, lat:number)=>void }){
 }
 
 export default function MapPicker({ value, onChange }: Props){
-  const center = value ? [value[1], value[0]] : [10.78, 106.68];
+  const center = value ? [value[1], value[0]] : [21.03, 105.83];
   useEffect(()=>{}, [value]);
   return (
-    <div className="h-72 w-full overflow-hidden rounded-2xl border">
+    <div className="h-80 w-full overflow-hidden rounded-2xl border">
       <MapContainer center={center as any} zoom={13} className="h-full w-full">
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
         {value && <Marker position={[value[1], value[0]] as any} />}

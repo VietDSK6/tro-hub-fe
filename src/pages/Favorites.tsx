@@ -1,13 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listFavorites, removeFavorite } from "@/api/favorites";
-import { useToast } from "@/hooks/useToast";
-import Toast from "@/components/ui/Toast";
+import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 import { Link } from "react-router-dom";
 
 export default function Favorites(){
   const qc = useQueryClient();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToastContext();
   
   const { data, isLoading } = useQuery({ queryKey:["favorites"], queryFn: ()=> listFavorites() });
   
@@ -25,15 +24,6 @@ export default function Favorites(){
   
   return (
     <div className="container-app p-4">
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-      
       <h1 className="h1 mb-3">Tin đã lưu</h1>
       
       {isLoading && <div className="text-sm text-gray-500">Đang tải...</div>}

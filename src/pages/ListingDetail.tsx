@@ -6,8 +6,7 @@ import { addFavorite } from "@/api/favorites";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/hooks/useToast";
-import Toast from "@/components/ui/Toast";
+import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 
 const schema = z.object({
@@ -28,7 +27,7 @@ const metricLabels: Record<string, string> = {
 export default function ListingDetail(){
   const { id="" } = useParams();
   const qc = useQueryClient();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToastContext();
   
   const { data: listing } = useQuery({ queryKey:["listing", id], queryFn: ()=> getListing(id) });
   const reviews = useQuery({ queryKey:["reviews", id], queryFn: ()=> listReviews({ listing_id:id, page:1, limit:20 }) });
@@ -75,15 +74,6 @@ export default function ListingDetail(){
 
   return (
     <div className="container-app p-4 space-y-4">
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-      
       <div className="card p-4 flex justify-between items-start">
         <div className="flex-1">
           <div className="h1 mb-2">{listing.title}</div>

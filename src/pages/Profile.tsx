@@ -6,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import MapPicker from "@/components/map/MapPicker";
 import { useState, useEffect } from "react";
 import { AxiosError } from "axios";
-import { useToast } from "@/hooks/useToast";
-import Toast from "@/components/ui/Toast";
+import { useToastContext } from "@/contexts/ToastContext";
 
 const schema = z.object({
   bio: z.string().min(10, "Giới thiệu phải có ít nhất 10 ký tự"),
@@ -30,7 +29,7 @@ export default function Profile(){
     resolver: zodResolver(schema),
   });
   const [point, setPoint] = useState<[number,number]|null>(null);
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToastContext();
 
   useEffect(()=>{
     if (!data || data.exists === false) return;
@@ -107,15 +106,6 @@ export default function Profile(){
 
   return (
     <div className="container-app p-4 max-w-2xl space-y-4">
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-      
       <h1 className="h1">Hồ sơ của tôi</h1>
       
       <form className="card p-4 space-y-4" onSubmit={handleSubmit((d)=>up.mutate(d))}>
