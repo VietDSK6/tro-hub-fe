@@ -7,7 +7,7 @@ export default function Topbar(){
   return (
     <div className="sticky top-0 z-10 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container-app px-4 h-14 flex items-center justify-between">
-        <Link to="/" className="font-bold">Trọ Hub</Link>
+        <Link to="/" className="text-6xl" style={{fontFamily: 'Bowlby, sans-serif'}}>Troj Hub</Link>
         <nav className="flex gap-3 text-sm items-center">
           <Link to="/listings/new" className="btn btn-ghost">Đăng tin</Link>
           <Link to="/favorites" className="btn btn-ghost">Yêu thích</Link>

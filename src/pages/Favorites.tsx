@@ -3,6 +3,7 @@ import { listFavorites, removeFavorite } from "@/api/favorites";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { AxiosError } from "axios";
+import { Link } from "react-router-dom";
 
 export default function Favorites(){
   const qc = useQueryClient();
@@ -48,7 +49,7 @@ export default function Favorites(){
         {data?.items?.map((f:any)=> (
           <li key={f._id} className="card p-3 flex items-center justify-between">
             <div className="flex-1">
-              <div className="font-medium">{f.listing_id}</div>
+              <div className="font-medium">{f.listing.title}</div>
             </div>
             <button 
               className="btn btn-ghost text-red-600" 
