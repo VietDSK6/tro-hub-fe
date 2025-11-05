@@ -5,11 +5,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MapPicker from "@/components/map/MapPicker";
 import { useState } from "react";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { AxiosError } from "axios";
 
 const schema = z.object({
-  title: z.string().min(4),
+  title: z.string().min(4, "Tiêu đề phải có ít nhất 4 ký tự"),
   desc: z.string().optional(),
-  price: z.coerce.number().min(0),
+  price: z.coerce.number().min(0, "Giá phải lớn hơn 0"),
   lng: z.coerce.number(),
   lat: z.coerce.number()
 });
@@ -17,9 +20,12 @@ type FormData = z.infer<typeof schema>;
 
 export default function NewListing(){
   const [point, setPoint] = useState<[number,number]|null>(null);
+  const { toasts, success, error, removeToast } = useToast();
+  
   const { register, handleSubmit, setValue, formState:{errors} } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+  
   const mutation = useMutation({
     mutationFn: (data:FormData) => createListing({
       title: data.title,
@@ -27,44 +33,55 @@ export default function NewListing(){
       price: data.price,
       location: { type: "Point", coordinates: [data.lng, data.lat] }
     } as any),
-    onSuccess: ()=> { alert("Đã tạo tin"); location.href="/"; }
+    onSuccess: ()=> { 
+      success("Đã tạo tin thành công!"); 
+      setTimeout(() => location.href="/", 1500);
+    },
+    onError: (err: AxiosError<{detail?: string}>) => {
+      const message = err.response?.data?.detail || "Tạo tin thất bại. Vui lòng thử lại.";
+      error(message);
+    }
   });
 
   const onPick = (lng:number, lat:number)=>{ setPoint([lng,lat]); setValue("lng", lng); setValue("lat", lat); };
 
   return (
     <div className="container-app p-4 max-w-2xl space-y-3">
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+      
       <h1 className="h1">Đăng tin</h1>
       <form className="card p-4 space-y-3" onSubmit={handleSubmit((d)=> mutation.mutate(d))}>
         <div>
-          <div className="label">Tiêu đề</div>
-          <input className="input" placeholder="Phòng trọ Q3..." {...register("title")}/>
+          <label className="label">Tiêu đề *</label>
+          <input className="input w-full" placeholder="Phòng trọ Quận 3, gần trường..." {...register("title")}/>
           {errors.title && <div className="text-xs text-red-600 mt-1">{errors.title.message}</div>}
         </div>
         <div>
-          <div className="label">Mô tả</div>
-          <textarea className="input h-28" placeholder="Chi tiết..." {...register("desc")}/>
+          <label className="label">Mô tả chi tiết</label>
+          <textarea className="input w-full h-28" placeholder="Giới thiệu về phòng trọ, tiện ích, quy định..." {...register("desc")}/>
         </div>
         <div>
-          <div className="label">Giá (đ)</div>
-          <input className="input" type="number" step="1000" {...register("price")}/>
+          <label className="label">Giá thuê (VNĐ/tháng) *</label>
+          <input className="input w-full" type="number" step="100000" placeholder="3000000" {...register("price")}/>
           {errors.price && <div className="text-xs text-red-600 mt-1">{errors.price.message}</div>}
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <div className="label">Lng</div>
-            <input className="input" {...register("lng")}/>
-            {errors.lng && <div className="text-xs text-red-600 mt-1">{errors.lng.message as any}</div>}
-          </div>
-          <div>
-            <div className="label">Lat</div>
-            <input className="input" {...register("lat")}/>
-            {errors.lat && <div className="text-xs text-red-600 mt-1">{errors.lat.message as any}</div>}
-          </div>
+        <div>
+          <label className="label">Vị trí *</label>
+          <p className="text-xs text-gray-500 mb-2">Chọn vị trí chính xác trên bản đồ</p>
+          <MapPicker value={point} onChange={onPick}/>
+          {(errors.lng || errors.lat) && <div className="text-xs text-red-600 mt-1">Vui lòng chọn vị trí trên bản đồ</div>}
         </div>
-        <MapPicker value={point} onChange={onPick}/>
         <div className="pt-2">
-          <button className="btn btn-primary" type="submit" disabled={mutation.isPending}>Tạo</button>
+          <button className="btn btn-primary w-full" type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? "Đang tạo tin..." : "Đăng tin"}
+          </button>
         </div>
       </form>
     </div>

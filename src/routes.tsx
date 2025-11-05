@@ -5,7 +5,8 @@ import NewListing from "@/pages/NewListing";
 import Favorites from "@/pages/Favorites";
 import Profile from "@/pages/Profile";
 import Matching from "@/pages/Matching";
-import Auth from "@/pages/Auth";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import Shell from "@/shell";
 import { RequireAuth } from "@/app/guard";
 
@@ -14,7 +15,8 @@ export const router = createBrowserRouter([
     element: <Shell/>,
     children: [
       { path: "/", element: <Home/> },
-      { path: "/auth", element: <Auth/> },
+      { path: "/login", element: <Login/> },
+      { path: "/register", element: <Register/> },
       { element: <RequireAuth/>, children: [
         { path: "/listings/new", element: <NewListing/> },
         { path: "/favorites", element: <Favorites/> },

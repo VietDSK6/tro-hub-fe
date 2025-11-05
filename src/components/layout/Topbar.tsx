@@ -14,7 +14,7 @@ export default function Topbar(){
           <Link to="/matching" className="btn btn-ghost">Gợi ý</Link>
           <Link to="/profile" className="btn btn-ghost">Hồ sơ</Link>
           {!isAuthed
-            ? <Link to="/auth" state={{from:loc.pathname}} className="btn btn-primary">Đăng nhập</Link>
+            ? <Link to="/login" state={{from:loc.pathname}} className="btn btn-primary">Đăng nhập</Link>
             : <button className="btn btn-ghost" onClick={logout}>Đăng xuất</button>}
         </nav>
       </div>
