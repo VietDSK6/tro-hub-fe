@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MapPicker from "@/components/map/MapPicker";
+import ImageUpload from "@/components/ui/ImageUpload";
 import { useState } from "react";
 import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
@@ -19,6 +20,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function NewListing(){
   const [point, setPoint] = useState<[number,number]|null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const { success, error } = useToastContext();
   
   const { register, handleSubmit, setValue, formState:{errors} } = useForm<FormData>({
@@ -30,6 +32,7 @@ export default function NewListing(){
       title: data.title,
       desc: data.desc,
       price: data.price,
+      images: images,
       location: { type: "Point", coordinates: [data.lng, data.lat] }
     } as any),
     onSuccess: ()=> { 
@@ -61,6 +64,10 @@ export default function NewListing(){
           <label className="label">Giá thuê (VNĐ/tháng) *</label>
           <input className="input w-full" type="number" step="100000" placeholder="3000000" {...register("price")}/>
           {errors.price && <div className="text-xs text-red-600 mt-1">{errors.price.message}</div>}
+        </div>
+        <div>
+          <label className="label">Hình ảnh</label>
+          <ImageUpload value={images} onChange={setImages} maxImages={5} />
         </div>
         <div>
           <label className="label">Vị trí *</label>

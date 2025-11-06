@@ -74,6 +74,21 @@ export default function ListingDetail(){
 
   return (
     <div className="container-app p-4 space-y-4">
+      {listing.images && listing.images.length > 0 && (
+        <div className="card p-0 overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-2">
+            {listing.images.map((img: string, i: number) => (
+              <img 
+                key={i} 
+                src={img} 
+                alt={`${listing.title} - ${i + 1}`}
+                className="w-full h-48 object-cover rounded"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      
       <div className="card p-4 flex justify-between items-start">
         <div className="flex-1">
           <div className="h1 mb-2">{listing.title}</div>
@@ -87,7 +102,7 @@ export default function ListingDetail(){
           onClick={()=>fav.mutate()}
           disabled={fav.isPending}
         >
-          {fav.isPending ? "Đang lưu..." : "❤️ Lưu tin"}
+          {fav.isPending ? "Đang lưu..." : "Lưu tin"}
         </button>
       </div>
 
@@ -137,7 +152,7 @@ export default function ListingDetail(){
       <div className="card p-4">
         <div className="h2 mb-3">Tổng kết điểm đánh giá</div>
         <div className="text-3xl font-bold text-blue-600 mb-4">
-          {summary.data?.overall ? `${summary.data.overall}/5 ⭐` : "Chưa có đánh giá"}
+          {summary.data?.overall ? `${summary.data.overall}/5` : "Chưa có đánh giá"}
         </div>
         <ul className="grid md:grid-cols-2 gap-2">
           {summary.data?.metrics?.map((m:any)=> (

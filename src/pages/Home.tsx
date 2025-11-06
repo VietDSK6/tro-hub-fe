@@ -8,7 +8,6 @@ export default function Home(){
   const [q,setQ]=useState(""); 
   const [location, setLocation] = useState<[number,number]|null>(null);
   const [radius,setRadius]=useState<string>("5");
-  const [showMap, setShowMap] = useState(false);
   
   const { data, isLoading } = useQuery({
     queryKey: ["listings", q, location?.[0], location?.[1], radius],
@@ -23,7 +22,6 @@ export default function Home(){
 
   const onPickLocation = (lng: number, lat: number) => {
     setLocation([lng, lat]);
-    setShowMap(false);
   };
 
   const clearLocation = () => {
@@ -40,30 +38,21 @@ export default function Home(){
         </div>
         
         <div>
-          <button 
-            type="button"
-            className="btn btn-ghost text-sm" 
-            onClick={() => setShowMap(!showMap)}
-          >
-            {location ? "📍 Đã chọn vị trí - Click để thay đổi" : "📍 Chọn vị trí tìm kiếm"}
-          </button>
           {location && (
             <button 
               type="button"
-              className="btn btn-ghost text-sm ml-2" 
+              className="btn btn-ghost text-sm" 
               onClick={clearLocation}
             >
-              ✕ Xóa vị trí
+              Xóa vị trí
             </button>
           )}
         </div>
         
-        {showMap && (
-          <div>
-            <p className="text-xs text-gray-500 mb-2">Chọn vị trí trên bản đồ</p>
-            <MapPicker value={location} onChange={onPickLocation}/>
-          </div>
-        )}
+        <div>
+          <p className="text-xs text-gray-500 mb-2">Chọn vị trí trên bản đồ</p>
+          <MapPicker value={location} onChange={onPickLocation}/>
+        </div>
       </div>
 
       {isLoading && <div className="text-sm text-gray-500">Đang tải…</div>}

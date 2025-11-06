@@ -46,7 +46,7 @@ export default function Favorites(){
               onClick={()=>rm.mutate(f.listing_id)}
               disabled={rm.isPending}
             >
-              {rm.isPending ? "Đang xóa..." : "✕ Xóa"}
+              {rm.isPending ? "Đang xóa..." : "Xóa"}
             </button>
           </li>
         ))}
