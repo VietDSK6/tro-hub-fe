@@ -49,8 +49,7 @@ export default function Matching(){
             onClick={() => navigate("/profile")}
             className="btn-primary px-6 py-2 rounded-lg mx-auto"
           >
-            Đi đến Hồ sơ của tôi
-          </button>
+            Đi đến Hồ sờg          </button>
         </div>
       )}
       
