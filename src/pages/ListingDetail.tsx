@@ -152,14 +152,21 @@ export default function ListingDetail(){
       <div className="card p-4">
         <div className="h2 mb-3">Tổng kết điểm đánh giá</div>
         <div className="text-3xl font-bold text-blue-600 mb-4">
-          {summary.data?.overall ? `${summary.data.overall}/5` : "Chưa có đánh giá"}
+          {summary.data?.overall ? (
+            <>
+              {summary.data.overall}
+              <span className="text-yellow-500">★</span>
+              <span className="text-lg text-gray-600">/5</span>
+            </>
+          ) : "Chưa có đánh giá"}
         </div>
         <ul className="grid md:grid-cols-2 gap-2">
           {summary.data?.metrics?.map((m:any)=> (
             <li key={m.metric} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
               <span className="text-sm">{metricLabels[m.metric] || m.metric}</span>
               <span className="font-medium text-blue-600">
-                {m.avg.toFixed(1)}/5 <span className="text-xs text-gray-500">({m.count})</span>
+                {m.avg.toFixed(1)}<span className="text-yellow-500">★</span> 
+                <span className="text-xs text-gray-500">({m.count} đánh giá)</span>
               </span>
             </li>
           ))}

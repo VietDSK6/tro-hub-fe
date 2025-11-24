@@ -1,62 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { listListings } from "@/api/listings";
-import { useState } from "react";
 import ListingCard from "@/components/layout/ListingCard";
-import MapPicker from "@/components/map/MapPicker";
 
 export default function Home(){
-  const [q,setQ]=useState(""); 
-  const [location, setLocation] = useState<[number,number]|null>(null);
-  const [radius,setRadius]=useState<string>("5");
-  
   const { data, isLoading } = useQuery({
-    queryKey: ["listings", q, location?.[0], location?.[1], radius],
-    queryFn: ()=> listListings({
-      q: q || undefined,
-      lng: location?.[0],
-      lat: location?.[1],
-      radius_km: radius? Number(radius): undefined,
-      limit: 20
-    })
+    queryKey: ["listings"],
+    queryFn: ()=> listListings({ limit: 50 })
   });
 
-  const onPickLocation = (lng: number, lat: number) => {
-    setLocation([lng, lat]);
-  };
-
-  const clearLocation = () => {
-    setLocation(null);
-  };
-
   return (
-    <div className="container-app p-4 space-y-4">
-      <div className="card p-4 space-y-3">
-        <div className="grid md:grid-cols-3 gap-2">
-          <input className="input" placeholder="Từ khoá tìm kiếm..." value={q} onChange={e=>setQ(e.target.value)}/>
-          <input className="input" placeholder="Bán kính (km)" value={radius} onChange={e=>setRadius(e.target.value)}/>
-          <div className="flex items-center text-sm text-gray-600">{data?.total ?? 0} kết quả</div>
-        </div>
-        
-        <div>
-          {location && (
-            <button 
-              type="button"
-              className="btn btn-ghost text-sm" 
-              onClick={clearLocation}
-            >
-              Xóa vị trí
-            </button>
-          )}
-        </div>
-        
-        <div>
-          <p className="text-xs text-gray-500 mb-2">Chọn vị trí trên bản đồ</p>
-          <MapPicker value={location} onChange={onPickLocation}/>
-        </div>
+    <div className="container-app p-4 space-y-6">
+      <div className="space-y-2">
+        <h1 className="h1">Tất cả phòng trọ</h1>
+        <p className="text-gray-600">{data?.total ?? 0} phòng trọ có sẵn</p>
       </div>
 
       {isLoading && <div className="text-sm text-gray-500">Đang tải…</div>}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data?.items?.map((l:any)=> <ListingCard key={l._id} listing={l}/>)}
       </div>
     </div>

@@ -1,9 +1,12 @@
 import { http } from "@/app/client";
-export async function meProfile(){
-  const { data } = await http.get("/profiles/me");
+import type { Profile, ProfileIn } from "@/types";
+
+export async function meProfile() {
+  const { data } = await http.get<Profile>("/profiles/me");
   return data;
 }
-export async function upsertMeProfile(body:any){
-  const { data } = await http.put("/profiles/me", body);
+
+export async function upsertMeProfile(body: ProfileIn) {
+  const { data } = await http.put<Profile>("/profiles/me", body);
   return data;
 }

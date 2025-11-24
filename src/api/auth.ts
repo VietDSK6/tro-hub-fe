@@ -1,13 +1,12 @@
 import { http } from "@/app/client";
+import type { AuthResponse, RegisterPayload, LoginPayload } from "@/types";
 
-export type AuthPayload = { email: string; password: string; name?: string };
-export type AuthResp = { _id: string; email: string; name?: string };
-
-export async function apiRegister(body: AuthPayload) {
-  const { data } = await http.post<AuthResp>("/auth/register", body);
+export async function apiRegister(body: RegisterPayload) {
+  const { data } = await http.post<AuthResponse>("/auth/register", body);
   return data;
 }
-export async function apiLogin(body: AuthPayload) {
-  const { data } = await http.post<AuthResp>("/auth/login", body);
+
+export async function apiLogin(body: LoginPayload) {
+  const { data } = await http.post<AuthResponse>("/auth/login", body);
   return data;
 }

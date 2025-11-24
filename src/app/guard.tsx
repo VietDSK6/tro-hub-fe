@@ -1,8 +1,20 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 
 export function RequireAuth(){
   const uid = localStorage.getItem("userId");
   const loc = useLocation();
-  if (!uid) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
+  const navigate = useNavigate();
+  const { openLoginModal } = useAuthModal();
+  
+  useEffect(() => {
+    if (!uid) {
+      openLoginModal();
+      navigate("/", { replace: true, state: { from: loc.pathname } });
+    }
+  }, [uid, openLoginModal, navigate, loc.pathname]);
+  
+  if (!uid) return null;
   return <Outlet/>;
 }

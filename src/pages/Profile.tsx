@@ -9,6 +9,8 @@ import { AxiosError } from "axios";
 import { useToastContext } from "@/contexts/ToastContext";
 
 const schema = z.object({
+  full_name: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
+  email: z.string().email("Email không hợp lệ"),
   bio: z.string().min(10, "Giới thiệu phải có ít nhất 10 ký tự"),
   budget: z.coerce.number().min(0, "Ngân sách phải lớn hơn 0"),
   gender: z.string().optional(),
@@ -32,9 +34,11 @@ export default function Profile(){
   const { success, error } = useToastContext();
 
   useEffect(()=>{
-    if (!data || data.exists === false) return;
+    if (!data) return;
     
     reset({ 
+      full_name: data.full_name || "",
+      email: data.email || "",
       bio: data.bio || "", 
       budget: data.budget || 0,
       gender: data.gender || "",
@@ -66,7 +70,6 @@ export default function Profile(){
         },
       };
       
-      // Only add optional fields if they have values
       if (d.gender && d.gender !== "") payload.gender = d.gender;
       if (d.age && d.age !== "") {
         const ageNum = parseInt(d.age);
@@ -105,11 +108,50 @@ export default function Profile(){
   }
 
   return (
-    <div className="container-app p-4 max-w-2xl space-y-4">
+    <div className="container-app p-4 max-w-7xl space-y-4">
       <h1 className="h1">Hồ sơ của tôi</h1>
       
-      <form className="card p-4 space-y-4" onSubmit={handleSubmit((d)=>up.mutate(d))}>
-        {/* Bio */}
+      <div className="card p-6 space-y-4">
+        <h2 className="h2">Thông tin tài khoản</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="label">Họ tên</label>
+            <input 
+              {...register("full_name")}
+              className="input w-full" 
+            />
+            {errors.full_name && <p className="text-red-500 text-sm">{errors.full_name.message}</p>}
+          </div>
+          <div>
+            <label className="label">Email</label>
+            <input 
+              {...register("email")}
+              className="input w-full" 
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          </div>
+          <div>
+            <label className="label">Số điện thoại</label>
+            <input 
+              className="input w-full bg-gray-50" 
+              value={data?.phone || ""} 
+              disabled
+            />
+          </div>
+          <div>
+            <label className="label">Vai trò</label>
+            <input 
+              className="input w-full bg-gray-50" 
+              value={data?.role === "ADMIN" ? "Quản trị viên" : "Người dùng"} 
+              disabled
+            />
+          </div>
+        </div>
+      </div>
+      
+      <form className="card p-6 space-y-4" onSubmit={handleSubmit((d)=>up.mutate(d))}>
+        <h2 className="h2">Thông tin cá nhân</h2>
+        
         <div>
           <label className="label">Giới thiệu bản thân *</label>
           <textarea 
@@ -120,7 +162,6 @@ export default function Profile(){
           {errors.bio && <div className="text-xs text-red-600">{errors.bio.message}</div>}
         </div>
 
-        {/* Budget */}
         <div>
           <label className="label">Ngân sách tối đa (VNĐ) *</label>
           <input 
@@ -133,7 +174,6 @@ export default function Profile(){
           {errors.budget && <div className="text-xs text-red-600">{errors.budget.message}</div>}
         </div>
 
-        {/* Personal Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="label">Giới tính</label>
@@ -158,7 +198,6 @@ export default function Profile(){
           </div>
         </div>
 
-        {/* Habits */}
         <div>
           <label className="label mb-3">Thói quen sinh hoạt</label>
           <div className="space-y-2">
@@ -177,7 +216,6 @@ export default function Profile(){
           </div>
         </div>
 
-        {/* Sleep Time */}
         <div>
           <label className="label">Thời gian ngủ</label>
           <select className="input w-full" {...register("sleepTime")}>
@@ -188,14 +226,33 @@ export default function Profile(){
           </select>
         </div>
 
-        {/* Location */}
         <div>
           <label className="label">Vị trí mong muốn</label>
           <p className="text-xs text-gray-500 mb-2">Chọn vị trí trên bản đồ</p>
-          <MapPicker value={point} onChange={onPick}/>
+          <MapPicker value={point} onChange={onPick}>
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">Hướng dẫn chọn vị trí</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• Click vào bản đồ để chọn vị trí mong muốn</li>
+                  <li>• Kéo thả để di chuyển bản đồ</li>
+                  <li>• Sử dụng nút +/- để phóng to/thu nhỏ</li>
+                </ul>
+              </div>
+              
+              {point && (
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <h4 className="font-semibold text-green-800 mb-2">Vị trí đã chọn</h4>
+                  <p className="text-sm text-gray-700">
+                    Kinh độ: {point[0].toFixed(6)}<br/>
+                    Vĩ độ: {point[1].toFixed(6)}
+                  </p>
+                </div>
+              )}
+            </div>
+          </MapPicker>
         </div>
 
-        {/* Submit */}
         <div className="pt-2">
           <button 
             className="btn btn-primary w-full" 
