@@ -6,20 +6,16 @@ import ListingCard from "@/components/layout/ListingCard";
 import ListingsMap from "@/components/map/ListingsMap";
 
 const priceRanges = [
-  { label: "Thỏa thuận", value: "" },
-  { label: "Dưới 500 triệu", min: 0, max: 500000000 },
-  { label: "500 - 800 triệu", min: 500000000, max: 800000000 },
-  { label: "800 triệu - 1 tỷ", min: 800000000, max: 1000000000 },
-  { label: "1 - 2 tỷ", min: 1000000000, max: 2000000000 },
-  { label: "2 - 3 tỷ", min: 2000000000, max: 3000000000 },
-  { label: "3 - 5 tỷ", min: 3000000000, max: 5000000000 },
-  { label: "5 - 7 tỷ", min: 5000000000, max: 7000000000 },
-  { label: "7 - 10 tỷ", min: 7000000000, max: 10000000000 },
-  { label: "10 - 20 tỷ", min: 10000000000, max: 20000000000 },
-  { label: "20 - 30 tỷ", min: 20000000000, max: 30000000000 },
-  { label: "30 - 40 tỷ", min: 30000000000, max: 40000000000 },
-  { label: "40 - 60 tỷ", min: 40000000000, max: 60000000000 },
-  { label: "Trên 60 tỷ", min: 60000000000, max: undefined },
+  { label: "Tất cả", value: "" },
+  { label: "Dưới 1 triệu", min: 0, max: 1000000 },
+  { label: "1 - 2 triệu", min: 1000000, max: 2000000 },
+  { label: "2 - 3 triệu", min: 2000000, max: 3000000 },
+  { label: "3 - 4 triệu", min: 3000000, max: 4000000 },
+  { label: "4 - 5 triệu", min: 4000000, max: 5000000 },
+  { label: "5 - 7 triệu", min: 5000000, max: 7000000 },
+  { label: "7 - 10 triệu", min: 7000000, max: 10000000 },
+  { label: "10 - 15 triệu", min: 10000000, max: 15000000 },
+  { label: "Trên 15 triệu", min: 15000000, max: undefined },
 ];
 
 const areaRanges = [
@@ -37,30 +33,113 @@ const areaRanges = [
 
 export default function Listings() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [showMap, setShowMap] = useState(false);
+  const [sortBy, setSortBy] = useState("default");
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
     verified: true,
     priceMin: undefined as number | undefined,
     priceMax: undefined as number | undefined,
     areaMin: undefined as number | undefined,
     areaMax: undefined as number | undefined,
+    amenities: [] as string[],
+    rules: {
+      pet: undefined as boolean | undefined,
+      smoke: undefined as boolean | undefined,
+      cook: undefined as boolean | undefined,
+      visitor: undefined as boolean | undefined,
+    },
   });
   const [showPriceDropdown, setShowPriceDropdown] = useState(false);
   const [showAreaDropdown, setShowAreaDropdown] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["listings", filters],
+    queryKey: ["listings", searchTerm, filters, sortBy],
     queryFn: () => listListings({ 
+      q: searchTerm || undefined,
       page: 1, 
       limit: 20,
       min_price: filters.priceMin,
       max_price: filters.priceMax,
+      min_area: filters.areaMin,
+      max_area: filters.areaMax,
+      amenities: filters.amenities.length > 0 ? filters.amenities.join(",") : undefined,
+      pet: filters.rules.pet,
+      smoke: filters.rules.smoke,
+      cook: filters.rules.cook,
+      visitor: filters.rules.visitor,
     }),
   });
 
   const handleSearch = () => {
-    // Trigger search with current query
-    console.log("Search:", searchQuery);
+    setSearchTerm(searchQuery);
+  };
+
+  const sortedListings = () => {
+    if (!data?.items) return [];
+    const items = [...data.items];
+    
+    switch (sortBy) {
+      case "price-asc":
+        return items.sort((a, b) => (a.price || 0) - (b.price || 0));
+      case "price-desc":
+        return items.sort((a, b) => (b.price || 0) - (a.price || 0));
+      case "area-asc":
+        return items.sort((a, b) => (a.area || 0) - (b.area || 0));
+      case "area-desc":
+        return items.sort((a, b) => (b.area || 0) - (a.area || 0));
+      default:
+        return items;
+    }
+  };
+
+  const toggleAmenity = (amenity: string) => {
+    setFilters(prev => ({
+      ...prev,
+      amenities: prev.amenities.includes(amenity)
+        ? prev.amenities.filter(a => a !== amenity)
+        : [...prev.amenities, amenity]
+    }));
+  };
+
+  const toggleRule = (rule: keyof typeof filters.rules) => {
+    setFilters(prev => ({
+      ...prev,
+      rules: {
+        ...prev.rules,
+        [rule]: prev.rules[rule] === true ? undefined : true
+      }
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      verified: true,
+      priceMin: undefined,
+      priceMax: undefined,
+      areaMin: undefined,
+      areaMax: undefined,
+      amenities: [],
+      rules: {
+        pet: undefined,
+        smoke: undefined,
+        cook: undefined,
+        visitor: undefined,
+      },
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return filters.priceMin !== undefined || 
+           filters.priceMax !== undefined || 
+           filters.areaMin !== undefined || 
+           filters.areaMax !== undefined ||
+           filters.amenities.length > 0 ||
+           filters.rules.pet !== undefined ||
+           filters.rules.smoke !== undefined ||
+           filters.rules.cook !== undefined ||
+           filters.rules.visitor !== undefined;
   };
 
   const handlePriceSelect = (range: typeof priceRanges[0]) => {
@@ -91,16 +170,14 @@ export default function Listings() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Search Header */}
-      <div className="bg-white border-b sticky top-16 z-10">
+      <div className="bg-white sticky top-16 z-10">
         <div className="container-app px-8 py-4">
           <div className="flex gap-4 items-center">
-            {/* Search Input */}
             <div className="flex-1 flex gap-2">
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Nhà riêng Thủ Đức dưới 5 tỷ"
+                  placeholder="Tìm phòng trọ theo khu vực, giá..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -123,7 +200,6 @@ export default function Listings() {
               </button>
             </div>
 
-            {/* Map View Button */}
             <button 
               onClick={() => setShowMap(true)}
               className="btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
@@ -137,19 +213,24 @@ export default function Listings() {
         </div>
       </div>
 
-      {/* Filters Bar */}
       <div className="bg-white border-b">
         <div className="container-app px-8 py-3">
           <div className="flex gap-3 items-center text-sm">
-            {/* Filter Toggle */}
-            <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
+            <button 
+              onClick={() => setShowFilterModal(!showFilterModal)}
+              className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showFilterModal ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
               Lọc
+              {hasActiveFilters() && (
+                <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                  {filters.amenities.length + Object.values(filters.rules).filter(v => v !== undefined).length}
+                </span>
+              )}
             </button>
 
-            {/* Verified Toggle */}
             <button 
               onClick={() => setFilters({ ...filters, verified: !filters.verified })}
               className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${filters.verified ? 'bg-green-50 border-green-500' : 'hover:bg-gray-50'}`}
@@ -164,17 +245,15 @@ export default function Listings() {
               Tin xác thực
             </button>
 
-            {/* Property Type Dropdown */}
             <div className="relative">
-              <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
-                Loại nhà đất
+              <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50 opacity-50 cursor-not-allowed">
+                Loại phòng
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
             </div>
 
-            {/* Price Range Dropdown */}
             <div className="relative">
               <button 
                 onClick={() => setShowPriceDropdown(!showPriceDropdown)}
@@ -234,81 +313,138 @@ export default function Listings() {
               )}
             </div>
 
-            {/* Professional Toggle */}
-            <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50">
-              <span className="text-green-600">✓</span>
-              Môi giới chuyên nghiệp
-            </button>
+            {hasActiveFilters() && (
+              <button 
+                onClick={clearFilters}
+                className="flex items-center gap-2 px-3 py-2 border border-red-300 rounded-lg hover:bg-red-50 text-red-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Xóa bộ lọc
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Breadcrumb */}
+      {showFilterModal && (
+        <div className="bg-white border-t border-b shadow-lg">
+          <div className="container-app px-8 py-4">
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold mb-3">Tiện ích</h3>
+                <div className="space-y-2">
+                  {[
+                    { value: "ac", label: "Điều hòa" },
+                    { value: "wifi", label: "Wifi" },
+                    { value: "parking", label: "Chỗ để xe" },
+                    { value: "water_heater", label: "Nóng lạnh" },
+                    { value: "washing_machine", label: "Máy giặt" },
+                    { value: "fridge", label: "Tủ lạnh" },
+                  ].map(amenity => (
+                    <label key={amenity.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-red-500"
+                        checked={filters.amenities.includes(amenity.value)}
+                        onChange={() => toggleAmenity(amenity.value)}
+                      />
+                      <span>{amenity.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Quy định</h3>
+                <div className="space-y-2">
+                  {[
+                    { value: "pet" as const, label: "Cho phép nuôi thú cưng" },
+                    { value: "smoke" as const, label: "Cho phép hút thuốc" },
+                    { value: "cook" as const, label: "Cho phép nấu ăn" },
+                    { value: "visitor" as const, label: "Cho phép khách thăm" },
+                  ].map(rule => (
+                    <label key={rule.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-red-500"
+                        checked={filters.rules[rule.value] === true}
+                        onChange={() => toggleRule(rule.value)}
+                      />
+                      <span>{rule.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container-app px-8 py-4">
         <div className="text-sm text-gray-600">
-          <Link to="/" className="hover:text-red-500">Bán</Link>
+          <Link to="/" className="hover:text-red-500">Trang chủ</Link>
           <span className="mx-2">/</span>
-          <span>Tất cả BDS trên toàn quốc</span>
+          <span>Tìm phòng trọ</span>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container-app px-8 pb-8">
-        <h1 className="text-2xl font-bold mb-2">Mua bán nhà đất trên toàn quốc</h1>
+        <h1 className="text-2xl font-bold mb-2">Tìm phòng trọ phù hợp</h1>
         <p className="text-gray-600 mb-6">
-          Hiện có {data?.total || 0} bất động sản.
+          Hiện có {sortedListings().length} phòng trọ.
         </p>
 
-        {/* Email Alerts */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
             </svg>
           </div>
           <div className="flex-1">
-            <div className="font-semibold">Nhận email tin mới</div>
-            <div className="text-sm text-gray-600">Đăng ký để nhận thông báo tin mới phù hợp</div>
+            <div className="font-semibold">Nhận thông báo phòng trọ mới</div>
+            <div className="text-sm text-gray-600">Đăng ký để nhận email khi có phòng phù hợp</div>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" className="sr-only peer" />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-400"></div>
           </label>
         </div>
 
-        {/* Sort Dropdown */}
         <div className="flex justify-end mb-4">
-          <select className="border rounded-lg px-4 py-2 text-sm">
-            <option>Mặc định</option>
-            <option>Giá thấp đến cao</option>
-            <option>Giá cao đến thấp</option>
-            <option>Diện tích nhỏ đến lớn</option>
-            <option>Diện tích lớn đến nhỏ</option>
-            <option>Mới nhất</option>
+          <select 
+            className="border rounded-lg px-4 py-2 text-sm"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="default">Mặc định</option>
+            <option value="price-asc">Giá thấp đến cao</option>
+            <option value="price-desc">Giá cao đến thấp</option>
+            <option value="area-asc">Diện tích nhỏ đến lớn</option>
+            <option value="area-desc">Diện tích lớn đến nhỏ</option>
           </select>
         </div>
 
-        {/* Listings Grid */}
         {isLoading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
             <p className="mt-4 text-gray-600">Đang tải...</p>
           </div>
-        ) : data?.items && data.items.length > 0 ? (
+        ) : sortedListings().length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.items.map((listing: any) => (
+            {sortedListings().map((listing: any) => (
               <ListingCard key={listing._id} listing={listing} />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600">Không tìm thấy tin đăng nào</p>
+            <p className="text-gray-600">Không tìm thấy phòng trọ nào</p>
           </div>
         )}
       </div>
 
-      {/* Map Modal */}
       {showMap && data?.items && (
         <ListingsMap 
           listings={data.items} 

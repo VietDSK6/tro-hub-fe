@@ -3,6 +3,7 @@ import { listFavorites, removeFavorite } from "@/api/favorites";
 import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 import { Link } from "react-router-dom";
+import type { Favorite } from "@/types";
 
 export default function Favorites(){
   const qc = useQueryClient();
@@ -36,10 +37,11 @@ export default function Favorites(){
       )}
       
       <ul className="space-y-2">
-        {data?.items?.map((f:any)=> (
+        {data?.items?.map((f: Favorite) => (
           <li key={f._id} className="card p-3 flex items-center justify-between">
             <div className="flex-1">
-              <div className="font-medium">{f.listing.title}</div>
+              <div className="font-medium">{f.listing?.title ?? "(Tin đã xóa)"}</div>
+              <div className="text-sm text-gray-500">{f.listing ? `${f.listing.price ?? 0} đ` : "-"}</div>
             </div>
             <button 
               className="btn btn-ghost text-red-600" 

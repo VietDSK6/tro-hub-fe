@@ -13,6 +13,7 @@ const schema = z.object({
   title: z.string().min(4, "Tiêu đề phải có ít nhất 4 ký tự"),
   desc: z.string().optional(),
   price: z.coerce.number().min(0, "Giá phải lớn hơn 0"),
+  area: z.coerce.number().min(0, "Diện tích phải lớn hơn 0"),
   lng: z.coerce.number(),
   lat: z.coerce.number()
 });
@@ -21,6 +22,13 @@ type FormData = z.infer<typeof schema>;
 export default function NewListing(){
   const [point, setPoint] = useState<[number,number]|null>(null);
   const [images, setImages] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [rules, setRules] = useState({
+    pet: false,
+    smoke: false,
+    cook: true,
+    visitor: true
+  });
   const { success, error } = useToastContext();
   
   const { register, handleSubmit, setValue, formState:{errors} } = useForm<FormData>({
@@ -32,7 +40,10 @@ export default function NewListing(){
       title: data.title,
       desc: data.desc,
       price: data.price,
+      area: data.area,
       images: images,
+      amenities: amenities,
+      rules: rules,
       location: { type: "Point", coordinates: [data.lng, data.lat] }
     } as any),
     onSuccess: ()=> { 
@@ -70,6 +81,151 @@ export default function NewListing(){
                 <input className="input w-full" type="number" step="100000" placeholder="3000000" {...register("price")}/>
                 {errors.price && <div className="text-xs text-red-600 mt-1">{errors.price.message}</div>}
               </div>
+              
+              <div>
+                <label className="label">Diện tích (m²) *</label>
+                <input className="input w-full" type="number" step="1" placeholder="25" {...register("area")}/>
+                {errors.area && <div className="text-xs text-red-600 mt-1">{errors.area.message}</div>}
+              </div>
+
+              <div>
+                <label className="label">Tiện ích</label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={amenities.includes("ac")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAmenities([...amenities, "ac"]);
+                        } else {
+                          setAmenities(amenities.filter(a => a !== "ac"));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">Điều hòa</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={amenities.includes("wifi")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAmenities([...amenities, "wifi"]);
+                        } else {
+                          setAmenities(amenities.filter(a => a !== "wifi"));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">Wifi</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={amenities.includes("parking")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAmenities([...amenities, "parking"]);
+                        } else {
+                          setAmenities(amenities.filter(a => a !== "parking"));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">Chỗ để xe</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={amenities.includes("water_heater")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAmenities([...amenities, "water_heater"]);
+                        } else {
+                          setAmenities(amenities.filter(a => a !== "water_heater"));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">Nóng lạnh</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={amenities.includes("washing_machine")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAmenities([...amenities, "washing_machine"]);
+                        } else {
+                          setAmenities(amenities.filter(a => a !== "washing_machine"));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">Máy giặt</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={amenities.includes("fridge")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAmenities([...amenities, "fridge"]);
+                        } else {
+                          setAmenities(amenities.filter(a => a !== "fridge"));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">Tủ lạnh</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Quy định</label>
+                <div className="space-y-2 mt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={rules.pet}
+                      onChange={(e) => setRules({...rules, pet: e.target.checked})}
+                    />
+                    <span className="text-sm">Cho phép nuôi thú cưng</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={rules.smoke}
+                      onChange={(e) => setRules({...rules, smoke: e.target.checked})}
+                    />
+                    <span className="text-sm">Cho phép hút thuốc</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={rules.cook}
+                      onChange={(e) => setRules({...rules, cook: e.target.checked})}
+                    />
+                    <span className="text-sm">Cho phép nấu ăn</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4"
+                      checked={rules.visitor}
+                      onChange={(e) => setRules({...rules, visitor: e.target.checked})}
+                    />
+                    <span className="text-sm">Cho phép khách thăm</span>
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <label className="label">Hình ảnh</label>
                 <ImageUpload value={images} onChange={setImages} maxImages={5} />

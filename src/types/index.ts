@@ -45,6 +45,18 @@ export interface Listing extends ListingIn {
   owner?: Owner;
 }
 
+export interface ListingPreview {
+  _id: string;
+  title: string;
+  desc?: string;
+  price?: number;
+  area?: number;
+  images?: string[];
+  location: GeoPoint;
+  status?: ListingStatus;
+  owner_id?: string;
+}
+
 export interface ListingPatch {
   title?: string;
   desc?: string;
@@ -115,7 +127,7 @@ export interface Favorite {
   _id: string;
   user_id: string;
   listing_id: string;
-  listing?: Listing;
+  listing?: ListingPreview | Listing;
 }
 
 export interface Report {
@@ -142,6 +154,13 @@ export interface ListingsParams {
   q?: string;
   min_price?: number;
   max_price?: number;
+  min_area?: number;
+  max_area?: number;
+  amenities?: string;
+  pet?: boolean;
+  smoke?: boolean;
+  cook?: boolean;
+  visitor?: boolean;
   lng?: number;
   lat?: number;
   radius_km?: number;
