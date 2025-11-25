@@ -45,6 +45,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
     mutationFn: apiLogin,
     onSuccess: (res) => {
       localStorage.setItem("userId", res._id);
+      localStorage.setItem("userRole", res.role || "USER");
       success("Đăng nhập thành công!");
       onClose();
       window.location.reload();
@@ -59,6 +60,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
     mutationFn: apiRegister,
     onSuccess: (res) => {
       localStorage.setItem("userId", res._id);
+      localStorage.setItem("userRole", res.role || "USER");
       success("Đăng ký thành công!");
       onClose();
       window.location.reload();

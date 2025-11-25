@@ -15,3 +15,10 @@ export async function createListing(body: ListingIn) {
   const { data } = await http.post<Listing>("/listings", body);
   return data;
 }
+
+export async function verifyListing(id: string, status: "VERIFIED" | "REJECTED") {
+  const { data } = await http.post<Listing>(`/listings/${id}/verify`, null, {
+    params: { status }
+  });
+  return data;
+}

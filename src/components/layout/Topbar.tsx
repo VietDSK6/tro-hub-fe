@@ -6,7 +6,7 @@ import NotificationModal from "./NotificationModal";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 
 export default function Topbar(){
-  const { isAuthed, logout } = useAuth();
+  const { isAuthed, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const { openLoginModal, openRegisterModal } = useAuthModal();
@@ -50,9 +50,15 @@ export default function Topbar(){
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
 
-              <Link to="/listings/new" className="btn btn-ghost">
-                Đăng tin
-              </Link>
+              {isAdmin ? (
+                <Link to="/admin/approval" className="btn btn-ghost">
+                  Duyệt bài
+                </Link>
+              ) : (
+                <Link to="/listings/new" className="btn btn-ghost">
+                  Đăng tin
+                </Link>
+              )}
 
               <button 
                 onClick={() => navigate("/profile")}

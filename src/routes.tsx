@@ -8,6 +8,7 @@ import Profile from "@/pages/Profile";
 import Matching from "@/pages/Matching";
 import Reviews from "@/pages/Reviews";
 import RoomateGuide from "@/pages/RoomateGuide";
+import AdminApproval from "@/pages/AdminApproval";
 import Shell from "@/shell";
 import { RequireAuth } from "@/app/guard";
 
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
         { path: "/favorites", element: <Favorites/> },
         { path: "/profile", element: <Profile/> },
         { path: "/matching", element: <Matching/> },
+        { path: "/admin/approval", element: <AdminApproval/> },
       ]},
       { path: "/listings/:id", element: <ListingDetail/> }
     ]
