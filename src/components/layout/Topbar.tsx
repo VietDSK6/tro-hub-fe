@@ -31,7 +31,6 @@ export default function Topbar(){
         
         <nav className="flex gap-1 text-sm items-center flex-1">
           <Link to="/listings" className="btn btn-ghost">Phòng trọ cho bạn</Link>
-          <Link to="/reviews" className="btn btn-ghost">Phân tích, đánh giá</Link>
           <Link to="/matching" className="btn btn-ghost">Gợi ý</Link>
           <Link to="/favorites" className="btn btn-ghost">Yêu thích</Link>
           <Link to="/guide" className="btn btn-ghost">Cẩm nang phòng trọ</Link>

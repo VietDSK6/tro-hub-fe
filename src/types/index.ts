@@ -99,30 +99,6 @@ export interface ProfileIn {
   location?: GeoPoint;
 }
 
-export interface Review {
-  _id: string;
-  listing_id: string;
-  author_id: string;
-  scores: Record<string, number>;
-  content: string;
-  created_at?: string;
-}
-
-export interface ReviewIn {
-  listing_id: string;
-  scores: Record<string, number>;
-  content: string;
-}
-
-export interface ReviewSummary {
-  overall: number | null;
-  metrics: Array<{
-    metric: string;
-    avg: number;
-  }>;
-  count: number;
-}
-
 export interface Favorite {
   _id: string;
   user_id: string;
