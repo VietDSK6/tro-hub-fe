@@ -8,6 +8,7 @@ import Profile from "@/pages/Profile";
 import Matching from "@/pages/Matching";
 import RoomateGuide from "@/pages/RoomateGuide";
 import AdminApproval from "@/pages/AdminApproval";
+import Analytics from "@/pages/Analytics";
 import Shell from "@/shell";
 import { RequireAuth } from "@/app/guard";
 
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home/> },
       { path: "/listings", element: <Listings/> },
+      { path: "/analytics", element: <Analytics/> },
       { path: "/guide", element: <RoomateGuide/> },
       { element: <RequireAuth/>, children: [
         { path: "/listings/new", element: <NewListing/> },
