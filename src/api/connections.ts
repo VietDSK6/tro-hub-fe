@@ -1,5 +1,5 @@
 import { http } from "@/app/client";
-import type { Connection, ConnectionCheck, PaginatedResponse } from "@/types";
+import type { Connection, ConnectionCheck, PaginatedResponse, ListingConnectionsResponse } from "@/types";
 
 export async function createConnection(listingId: string, message: string = "") {
   const { data } = await http.post("/connections", null, {
@@ -31,5 +31,12 @@ export async function updateConnectionStatus(connectionId: string, status: "ACCE
 
 export async function checkConnection(listingId: string) {
   const { data } = await http.get<ConnectionCheck>(`/connections/check/${listingId}`);
+  return data;
+}
+
+export async function getConnectionsByListing(listingId: string, page = 1, limit = 20) {
+  const { data } = await http.get<ListingConnectionsResponse>(`/connections/listing/${listingId}`, {
+    params: { page, limit }
+  });
   return data;
 }

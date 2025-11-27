@@ -99,6 +99,23 @@ export interface ProfileIn {
   location?: GeoPoint;
 }
 
+export interface PublicProfile {
+  _id: string;
+  user_id: string;
+  full_name: string;
+  bio?: string;
+  budget?: number;
+  gender?: string;
+  age?: number;
+  habits?: Record<string, any>;
+  desiredAreas?: string[];
+  location?: GeoPoint;
+  is_own_profile: boolean;
+  has_connection: boolean;
+  email?: string;
+  phone?: string;
+}
+
 export interface Favorite {
   _id: string;
   user_id: string;
@@ -231,6 +248,38 @@ export interface NotificationsResponse {
   items: Notification[];
   total: number;
   unread_count: number;
+  page: number;
+  limit: number;
+}
+
+export interface ListingConnectionUser {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface ListingConnectionProfile {
+  full_name: string;
+  avatar: string;
+  budget: number;
+}
+
+export interface ListingConnection {
+  _id: string;
+  listing_id: string;
+  from_user_id: string;
+  message: string;
+  status: ConnectionStatus;
+  created_at: string;
+  from_user?: ListingConnectionUser;
+  from_profile?: ListingConnectionProfile;
+}
+
+export interface ListingConnectionsResponse {
+  items: ListingConnection[];
+  total: number;
+  pending_count: number;
   page: number;
   limit: number;
 }

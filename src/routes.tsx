@@ -7,6 +7,7 @@ import EditListing from "@/pages/EditListing";
 import MyListings from "@/pages/MyListings";
 import Favorites from "@/pages/Favorites";
 import Profile from "@/pages/Profile";
+import UserProfile from "@/pages/UserProfile";
 import Matching from "@/pages/Matching";
 import RoomateGuide from "@/pages/RoomateGuide";
 import AdminApproval from "@/pages/AdminApproval";
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
         { path: "/my-listings", element: <MyListings/> },
         { path: "/favorites", element: <Favorites/> },
         { path: "/profile", element: <Profile/> },
+        { path: "/users/:userId", element: <UserProfile/> },
         { path: "/matching", element: <Matching/> },
         { path: "/connections", element: <Connections/> },
         { path: "/admin/approval", element: <AdminApproval/> },

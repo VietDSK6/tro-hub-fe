@@ -1,31 +1,54 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getListing } from "@/api/listings";
+import { getListing, deleteListing } from "@/api/listings";
 import { addFavorite } from "@/api/favorites";
-import { checkConnection, createConnection } from "@/api/connections";
+import { checkConnection, createConnection, getConnectionsByListing, updateConnectionStatus } from "@/api/connections";
 import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 import { useState } from "react";
+import type { ListingConnection } from "@/types";
+
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Vừa xong";
+  if (diffMins < 60) return `${diffMins} phút trước`;
+  if (diffHours < 24) return `${diffHours} giờ trước`;
+  return `${diffDays} ngày trước`;
+}
 
 export default function ListingDetail(){
   const { id="" } = useParams();
+  const navigate = useNavigate();
   const { success, error } = useToastContext();
   const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPhoneNumber, setShowPhoneNumber] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connectMessage, setConnectMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const userId = localStorage.getItem("userId");
   
   const { data: listing } = useQuery({ queryKey:["listing", id], queryFn: ()=> getListing(id) });
   
+  const isOwnListing = listing?.owner_id === userId;
+
   const { data: connectionStatus } = useQuery({
     queryKey: ["connection", id],
     queryFn: () => checkConnection(id),
-    enabled: !!userId && !!listing && listing.owner_id !== userId
+    enabled: !!userId && !!listing && !isOwnListing
   });
 
-  const isOwnListing = listing?.owner_id === userId;
+  const { data: listingConnections, isLoading: loadingConnections } = useQuery({
+    queryKey: ["listing-connections", id],
+    queryFn: () => getConnectionsByListing(id),
+    enabled: !!userId && isOwnListing
+  });
 
   const fav = useMutation({ 
     mutationFn: ()=> addFavorite(id), 
@@ -46,6 +69,30 @@ export default function ListingDetail(){
     },
     onError: (err: AxiosError<{detail?: string}>) => {
       const message = err.response?.data?.detail || "Gửi yêu cầu thất bại. Vui lòng thử lại.";
+      error(message);
+    }
+  });
+
+  const updateConnectionMutation = useMutation({
+    mutationFn: ({ connectionId, status }: { connectionId: string; status: "ACCEPTED" | "REJECTED" }) =>
+      updateConnectionStatus(connectionId, status),
+    onSuccess: (_, variables) => {
+      success(variables.status === "ACCEPTED" ? "Đã chấp nhận yêu cầu kết nối" : "Đã từ chối yêu cầu");
+      queryClient.invalidateQueries({ queryKey: ["listing-connections", id] });
+    },
+    onError: () => {
+      error("Có lỗi xảy ra. Vui lòng thử lại.");
+    }
+  });
+
+  const deleteListingMutation = useMutation({
+    mutationFn: () => deleteListing(id),
+    onSuccess: () => {
+      success("Đã xóa tin đăng");
+      navigate("/my-listings");
+    },
+    onError: (err: AxiosError<{detail?: string}>) => {
+      const message = err.response?.data?.detail || "Xóa tin thất bại";
       error(message);
     }
   });
@@ -269,8 +316,155 @@ export default function ListingDetail(){
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-4 space-y-4">
-              <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-lg p-6 text-white">
+            <div className="sticky top-20 space-y-4">
+              {isOwnListing ? (
+                <>
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold text-lg">Tin đăng của bạn</div>
+                        <div className="text-sm opacity-90">Quản lý tin đăng</div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Link 
+                        to={`/listings/${id}/edit`}
+                        className="flex-1 bg-white text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Chỉnh sửa
+                      </Link>
+                      <button 
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-gray-900">Yêu cầu kết nối</h3>
+                      {listingConnections?.pending_count ? (
+                        <span className="px-2 py-1 bg-red-500 text-white rounded-full text-xs font-medium">
+                          {listingConnections.pending_count} mới
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {loadingConnections ? (
+                      <div className="text-center py-4">
+                        <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                      </div>
+                    ) : !listingConnections?.items?.length ? (
+                      <div className="text-center py-6 text-gray-500">
+                        <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <p className="text-sm">Chưa có yêu cầu kết nối</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {listingConnections.items.map((conn: ListingConnection) => (
+                          <div key={conn._id} className="border rounded-lg p-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                                {conn.from_profile?.avatar ? (
+                                  <img src={conn.from_profile.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                                ) : (
+                                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <Link 
+                                    to={`/users/${conn.from_user_id}`}
+                                    className="font-medium text-gray-900 text-sm truncate hover:text-blue-600"
+                                  >
+                                    {conn.from_profile?.full_name || conn.from_user?.name || "Người dùng"}
+                                  </Link>
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                    conn.status === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                    conn.status === "ACCEPTED" ? "bg-green-100 text-green-800" :
+                                    "bg-red-100 text-red-800"
+                                  }`}>
+                                    {conn.status === "PENDING" ? "Chờ" : conn.status === "ACCEPTED" ? "Đã nhận" : "Từ chối"}
+                                  </span>
+                                </div>
+                                {conn.message && (
+                                  <p className="text-xs text-gray-500 mt-1 line-clamp-2 italic">"{conn.message}"</p>
+                                )}
+                                <div className="text-xs text-gray-400 mt-1">{formatTimeAgo(conn.created_at)}</div>
+
+                                {conn.status === "PENDING" && (
+                                  <div className="flex gap-2 mt-2">
+                                    <button
+                                      onClick={() => updateConnectionMutation.mutate({ connectionId: conn._id, status: "ACCEPTED" })}
+                                      disabled={updateConnectionMutation.isPending}
+                                      className="flex-1 text-xs bg-green-600 text-white py-1.5 px-2 rounded hover:bg-green-700 transition-colors"
+                                    >
+                                      Chấp nhận
+                                    </button>
+                                    <button
+                                      onClick={() => updateConnectionMutation.mutate({ connectionId: conn._id, status: "REJECTED" })}
+                                      disabled={updateConnectionMutation.isPending}
+                                      className="flex-1 text-xs border border-gray-300 py-1.5 px-2 rounded hover:bg-gray-50 transition-colors"
+                                    >
+                                      Từ chối
+                                    </button>
+                                  </div>
+                                )}
+
+                                {conn.status === "ACCEPTED" && conn.from_user && (
+                                  <div className="mt-2 pt-2 border-t space-y-1">
+                                    <a href={`mailto:${conn.from_user.email}`} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                      </svg>
+                                      {conn.from_user.email}
+                                    </a>
+                                    {conn.from_user.phone && (
+                                      <a href={`tel:${conn.from_user.phone}`} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                        {conn.from_user.phone}
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <Link 
+                      to="/connections" 
+                      className="block text-center text-sm text-blue-600 hover:underline mt-4 pt-3 border-t"
+                    >
+                      Xem tất cả kết nối →
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-lg p-6 text-white">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,6 +630,8 @@ export default function ListingDetail(){
                   </div>
                 </div>
               </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -481,6 +677,44 @@ export default function ListingDetail(){
                 className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 {connectMutation.isPending ? "Đang gửi..." : "Gửi yêu cầu"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Xác nhận xóa tin</h3>
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              Bạn có chắc chắn muốn xóa tin đăng này? Hành động này không thể hoàn tác.
+            </p>
+
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => deleteListingMutation.mutate()}
+                disabled={deleteListingMutation.isPending}
+                className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {deleteListingMutation.isPending ? "Đang xóa..." : "Xóa tin"}
               </button>
             </div>
           </div>
