@@ -3,6 +3,8 @@ import Home from "@/pages/Home";
 import Listings from "@/pages/Listings";
 import ListingDetail from "@/pages/ListingDetail";
 import NewListing from "@/pages/NewListing";
+import EditListing from "@/pages/EditListing";
+import MyListings from "@/pages/MyListings";
 import Favorites from "@/pages/Favorites";
 import Profile from "@/pages/Profile";
 import Matching from "@/pages/Matching";
@@ -23,6 +25,8 @@ export const router = createBrowserRouter([
       { path: "/guide", element: <RoomateGuide/> },
       { element: <RequireAuth/>, children: [
         { path: "/listings/new", element: <NewListing/> },
+        { path: "/listings/:id/edit", element: <EditListing/> },
+        { path: "/my-listings", element: <MyListings/> },
         { path: "/favorites", element: <Favorites/> },
         { path: "/profile", element: <Profile/> },
         { path: "/matching", element: <Matching/> },

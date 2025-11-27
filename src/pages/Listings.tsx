@@ -284,7 +284,6 @@ export default function Listings() {
               )}
             </div>
 
-            {/* Area Dropdown */}
             <div className="relative">
               <button 
                 onClick={() => setShowAreaDropdown(!showAreaDropdown)}
@@ -382,14 +381,6 @@ export default function Listings() {
           </div>
         </div>
       )}
-
-      <div className="container-app px-8 py-4">
-        <div className="text-sm text-gray-600">
-          <Link to="/" className="hover:text-red-500">Trang chủ</Link>
-          <span className="mx-2">/</span>
-          <span>Tìm phòng trọ</span>
-        </div>
-      </div>
 
       <div className="container-app px-8 pb-8">
         <h1 className="text-2xl font-bold mb-2">Tìm phòng trọ phù hợp</h1>

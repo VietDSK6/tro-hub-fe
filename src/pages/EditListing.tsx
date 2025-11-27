@@ -1,0 +1,253 @@
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
+import { getListing, updateListing } from "@/api/listings";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import MapPicker from "@/components/map/MapPicker";
+import ImageUpload from "@/components/ui/ImageUpload";
+import { useState, useEffect } from "react";
+import { useToastContext } from "@/contexts/ToastContext";
+import { AxiosError } from "axios";
+
+const schema = z.object({
+  title: z.string().min(4, "Tiêu đề phải có ít nhất 4 ký tự"),
+  desc: z.string().optional(),
+  price: z.coerce.number().min(0, "Giá phải lớn hơn 0"),
+  area: z.coerce.number().min(0, "Diện tích phải lớn hơn 0"),
+  lng: z.coerce.number(),
+  lat: z.coerce.number()
+});
+type FormData = z.infer<typeof schema>;
+
+export default function EditListing() {
+  const { id = "" } = useParams();
+  const navigate = useNavigate();
+  const { success, error } = useToastContext();
+  
+  const [point, setPoint] = useState<[number, number] | null>(null);
+  const [images, setImages] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [rules, setRules] = useState({
+    pet: false,
+    smoke: false,
+    cook: true,
+    visitor: true
+  });
+
+  const { data: listing, isLoading } = useQuery({
+    queryKey: ["listing", id],
+    queryFn: () => getListing(id),
+    enabled: !!id
+  });
+
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  useEffect(() => {
+    if (listing) {
+      setValue("title", listing.title);
+      setValue("desc", listing.desc || "");
+      setValue("price", listing.price || 0);
+      setValue("area", listing.area || 0);
+      
+      if (listing.location?.coordinates) {
+        const [lng, lat] = listing.location.coordinates;
+        setPoint([lng, lat]);
+        setValue("lng", lng);
+        setValue("lat", lat);
+      }
+      
+      setImages(listing.images || []);
+      setAmenities(listing.amenities || []);
+      setRules({
+        pet: listing.rules?.pet ?? false,
+        smoke: listing.rules?.smoke ?? false,
+        cook: listing.rules?.cook ?? true,
+        visitor: listing.rules?.visitor ?? true
+      });
+    }
+  }, [listing, setValue]);
+
+  const mutation = useMutation({
+    mutationFn: (data: FormData) => updateListing(id, {
+      title: data.title,
+      desc: data.desc,
+      price: data.price,
+      area: data.area,
+      images: images,
+      amenities: amenities,
+      rules: rules,
+      location: { type: "Point", coordinates: [data.lng, data.lat] }
+    }),
+    onSuccess: () => {
+      success("Đã cập nhật tin đăng!");
+      navigate("/my-listings");
+    },
+    onError: (err: AxiosError<{ detail?: string }>) => {
+      const message = err.response?.data?.detail || "Cập nhật thất bại. Vui lòng thử lại.";
+      error(message);
+    }
+  });
+
+  const onPick = (lng: number, lat: number) => {
+    setPoint([lng, lat]);
+    setValue("lng", lng);
+    setValue("lat", lat);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container-app p-4 text-center py-12">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p className="mt-4 text-gray-600">Đang tải...</p>
+      </div>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <div className="container-app p-4 text-center py-12">
+        <p className="text-gray-600">Không tìm thấy tin đăng</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container-app p-4 max-w-7xl space-y-3">
+      <div className="flex items-center justify-between">
+        <h1 className="h1">Chỉnh sửa tin đăng</h1>
+        <button
+          onClick={() => navigate("/my-listings")}
+          className="btn btn-ghost"
+        >
+          Hủy
+        </button>
+      </div>
+      
+      <form className="space-y-3" onSubmit={handleSubmit((d) => mutation.mutate(d))}>
+        <div>
+          <label className="label">Vị trí *</label>
+          <p className="text-xs text-gray-500 mb-2">Chọn vị trí chính xác trên bản đồ</p>
+          <MapPicker value={point} onChange={onPick}>
+            <div className="card p-4 space-y-3">
+              <div>
+                <label className="label">Tiêu đề *</label>
+                <input className="input w-full" placeholder="Phòng trọ Quận 3, gần trường..." {...register("title")} />
+                {errors.title && <div className="text-xs text-red-600 mt-1">{errors.title.message}</div>}
+              </div>
+              <div>
+                <label className="label">Mô tả chi tiết</label>
+                <textarea className="input w-full h-28" placeholder="Giới thiệu về phòng trọ, tiện ích, quy định..." {...register("desc")} />
+              </div>
+              <div>
+                <label className="label">Giá thuê (VNĐ/tháng) *</label>
+                <input className="input w-full" type="number" step="100000" placeholder="3000000" {...register("price")} />
+                {errors.price && <div className="text-xs text-red-600 mt-1">{errors.price.message}</div>}
+              </div>
+
+              <div>
+                <label className="label">Diện tích (m²) *</label>
+                <input className="input w-full" type="number" step="1" placeholder="25" {...register("area")} />
+                {errors.area && <div className="text-xs text-red-600 mt-1">{errors.area.message}</div>}
+              </div>
+
+              <div>
+                <label className="label">Tiện ích</label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {[
+                    { key: "ac", label: "Điều hòa" },
+                    { key: "wifi", label: "Wifi" },
+                    { key: "parking", label: "Chỗ để xe" },
+                    { key: "water_heater", label: "Nóng lạnh" },
+                    { key: "washing_machine", label: "Máy giặt" },
+                    { key: "fridge", label: "Tủ lạnh" }
+                  ].map(({ key, label }) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4"
+                        checked={amenities.includes(key)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAmenities([...amenities, key]);
+                          } else {
+                            setAmenities(amenities.filter(a => a !== key));
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Quy định</label>
+                <div className="space-y-2 mt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={rules.pet}
+                      onChange={(e) => setRules({ ...rules, pet: e.target.checked })}
+                    />
+                    <span className="text-sm">Cho phép nuôi thú cưng</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={rules.smoke}
+                      onChange={(e) => setRules({ ...rules, smoke: e.target.checked })}
+                    />
+                    <span className="text-sm">Cho phép hút thuốc</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={rules.cook}
+                      onChange={(e) => setRules({ ...rules, cook: e.target.checked })}
+                    />
+                    <span className="text-sm">Cho phép nấu ăn</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={rules.visitor}
+                      onChange={(e) => setRules({ ...rules, visitor: e.target.checked })}
+                    />
+                    <span className="text-sm">Cho phép khách thăm</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Hình ảnh</label>
+                <ImageUpload value={images} onChange={setImages} maxImages={5} />
+              </div>
+              {(errors.lng || errors.lat) && <div className="text-xs text-red-600">Vui lòng chọn vị trí trên bản đồ</div>}
+            </div>
+          </MapPicker>
+          {(errors.lng || errors.lat) && <div className="text-xs text-red-600 mt-1">Vui lòng chọn vị trí trên bản đồ</div>}
+        </div>
+        
+        <div className="pt-2 flex gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/my-listings")}
+            className="btn btn-ghost flex-1"
+          >
+            Hủy
+          </button>
+          <button className="btn btn-primary flex-1" type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
