@@ -1,7 +1,11 @@
 import { http } from "@/app/client";
 import type { Listing, ListingIn, ListingsParams, PaginatedResponse } from "@/types";
 
-export async function listListings(params: ListingsParams) {
+export interface ListingsQueryParams extends ListingsParams {
+  exclude_own?: boolean;
+}
+
+export async function listListings(params: ListingsQueryParams) {
   const { data } = await http.get<PaginatedResponse<Listing>>("/listings", { params });
   return data;
 }

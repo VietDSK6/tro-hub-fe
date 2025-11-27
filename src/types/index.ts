@@ -170,3 +170,67 @@ export interface RegisterPayload {
   name: string;
   phone: string;
 }
+
+export type ConnectionStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+
+export interface ConnectionListingPreview {
+  _id: string;
+  title: string;
+  price: number;
+  images: string[];
+}
+
+export interface ConnectionUserPreview {
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface Connection {
+  _id: string;
+  listing_id: string;
+  from_user_id?: string;
+  to_user_id?: string;
+  message: string;
+  status: ConnectionStatus;
+  created_at: string;
+  listing?: ConnectionListingPreview;
+  from_user?: ConnectionUserPreview;
+  to_user?: ConnectionUserPreview;
+}
+
+export interface ConnectionCheck {
+  connected: boolean;
+  status: ConnectionStatus | null;
+  connection_id?: string;
+  owner_contact?: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
+export type NotificationType = "CONNECTION_REQUEST" | "CONNECTION_ACCEPTED" | "CONNECTION_REJECTED";
+
+export interface Notification {
+  _id: string;
+  type: NotificationType;
+  title: string;
+  content: string;
+  metadata?: {
+    connection_id?: string;
+    listing_id?: string;
+    from_user_id?: string;
+    to_user_id?: string;
+  };
+  read: boolean;
+  created_at: string;
+}
+
+export interface NotificationsResponse {
+  items: Notification[];
+  total: number;
+  unread_count: number;
+  page: number;
+  limit: number;
+}

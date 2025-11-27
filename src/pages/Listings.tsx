@@ -69,6 +69,7 @@ export default function Listings() {
       smoke: filters.rules.smoke,
       cook: filters.rules.cook,
       visitor: filters.rules.visitor,
+      exclude_own: true,
     }),
   });
 

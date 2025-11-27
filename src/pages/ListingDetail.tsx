@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getListing } from "@/api/listings";
 import { addFavorite } from "@/api/favorites";
+import { checkConnection, createConnection } from "@/api/connections";
 import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 import { useState } from "react";
@@ -9,16 +10,42 @@ import { useState } from "react";
 export default function ListingDetail(){
   const { id="" } = useParams();
   const { success, error } = useToastContext();
+  const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPhoneNumber, setShowPhoneNumber] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [connectMessage, setConnectMessage] = useState("");
+  const userId = localStorage.getItem("userId");
   
   const { data: listing } = useQuery({ queryKey:["listing", id], queryFn: ()=> getListing(id) });
+  
+  const { data: connectionStatus } = useQuery({
+    queryKey: ["connection", id],
+    queryFn: () => checkConnection(id),
+    enabled: !!userId && !!listing && listing.owner_id !== userId
+  });
+
+  const isOwnListing = listing?.owner_id === userId;
 
   const fav = useMutation({ 
     mutationFn: ()=> addFavorite(id), 
     onSuccess: ()=> success("Đã lưu tin yêu thích!"),
     onError: (err: AxiosError<{detail?: string}>) => {
       const message = err.response?.data?.detail || "Lưu tin thất bại. Vui lòng thử lại.";
+      error(message);
+    }
+  });
+
+  const connectMutation = useMutation({
+    mutationFn: () => createConnection(id, connectMessage),
+    onSuccess: () => {
+      success("Đã gửi yêu cầu kết nối! Chủ phòng sẽ nhận được thông báo.");
+      setShowConnectModal(false);
+      setConnectMessage("");
+      queryClient.invalidateQueries({ queryKey: ["connection", id] });
+    },
+    onError: (err: AxiosError<{detail?: string}>) => {
+      const message = err.response?.data?.detail || "Gửi yêu cầu thất bại. Vui lòng thử lại.";
       error(message);
     }
   });
@@ -323,6 +350,66 @@ export default function ListingDetail(){
                     </svg>
                   </button>
                 </div>
+
+                {!isOwnListing && userId && (
+                  <div className="mt-4 pt-4 border-t">
+                    {connectionStatus?.connected ? (
+                      <div className="space-y-3">
+                        {connectionStatus.status === "PENDING" && (
+                          <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm">
+                            <div className="font-medium">Đang chờ phản hồi</div>
+                            <div className="text-yellow-600 mt-1">Yêu cầu kết nối của bạn đang được chủ phòng xem xét</div>
+                          </div>
+                        )}
+                        {connectionStatus.status === "ACCEPTED" && connectionStatus.owner_contact && (
+                          <div className="bg-green-50 p-3 rounded-lg">
+                            <div className="font-medium text-green-800 mb-2">Đã kết nối thành công!</div>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span className="text-gray-700">{connectionStatus.owner_contact.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <a href={`mailto:${connectionStatus.owner_contact.email}`} className="text-blue-600 hover:underline">
+                                  {connectionStatus.owner_contact.email}
+                                </a>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                <a href={`tel:${connectionStatus.owner_contact.phone}`} className="text-blue-600 hover:underline">
+                                  {connectionStatus.owner_contact.phone}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {connectionStatus.status === "REJECTED" && (
+                          <div className="bg-red-50 text-red-800 p-3 rounded-lg text-sm">
+                            <div className="font-medium">Yêu cầu bị từ chối</div>
+                            <div className="text-red-600 mt-1">Chủ phòng đã từ chối yêu cầu kết nối của bạn</div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowConnectModal(true)}
+                        className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        Kết nối với chủ phòng
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="bg-white rounded-lg shadow-sm p-4">
@@ -353,6 +440,52 @@ export default function ListingDetail(){
           </div>
         </div>
       </div>
+
+      {showConnectModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Gửi yêu cầu kết nối</h3>
+              <button 
+                onClick={() => setShowConnectModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              Gửi tin nhắn cho chủ phòng để thể hiện sự quan tâm của bạn. Khi chủ phòng chấp nhận, bạn sẽ nhận được thông tin liên hệ của họ.
+            </p>
+
+            <textarea
+              value={connectMessage}
+              onChange={(e) => setConnectMessage(e.target.value)}
+              placeholder="Xin chào, tôi quan tâm đến phòng trọ này..."
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={4}
+            />
+
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setShowConnectModal(false)}
+                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => connectMutation.mutate()}
+                disabled={connectMutation.isPending}
+                className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {connectMutation.isPending ? "Đang gửi..." : "Gửi yêu cầu"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
