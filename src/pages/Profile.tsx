@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { meProfile, upsertMeProfile } from "@/api/profiles";
+import { apiSendVerification } from "@/api/auth";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +33,17 @@ export default function Profile(){
   });
   const [point, setPoint] = useState<[number,number]|null>(null);
   const { success, error } = useToastContext();
+
+  const sendVer = useMutation({
+    mutationFn: () => apiSendVerification(),
+    onSuccess: (res) => {
+      if (res?.sent) success(res.message || "Đã gửi email xác thực");
+      else success(res.message || "Tài khoản đã xác thực");
+    },
+    onError: (e: any) => {
+      error("Không thể gửi email xác thực. Vui lòng thử lại.");
+    }
+  });
 
   useEffect(()=>{
     if (!data) return;
@@ -137,6 +149,19 @@ export default function Profile(){
               value={data?.phone || ""} 
               disabled
             />
+          </div>
+          <div>
+            <label className="label">Xác thực email</label>
+            <div className="flex items-center gap-3">
+              <div className={`px-3 py-1 rounded-full text-sm ${data?.is_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                {data?.is_verified ? 'Đã xác thực' : 'Chưa xác thực'}
+              </div>
+              {!data?.is_verified && (
+                <button type="button" className="btn btn-outline btn-sm" onClick={()=>sendVer.mutate()} disabled={sendVer.isPending}>
+                  {sendVer.isPending ? 'Đang gửi...' : 'Gửi email xác thực'}
+                </button>
+              )}
+            </div>
           </div>
           <div>
             <label className="label">Vai trò</label>

@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getListing, deleteListing } from "@/api/listings";
 import { addFavorite } from "@/api/favorites";
 import { checkConnection, createConnection, getConnectionsByListing, updateConnectionStatus } from "@/api/connections";
+import { meProfile } from "@/api/profiles";
+import { apiSendVerification } from "@/api/auth";
 import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 import { useState } from "react";
@@ -35,8 +37,16 @@ export default function ListingDetail(){
   const userId = localStorage.getItem("userId");
   
   const { data: listing } = useQuery({ queryKey:["listing", id], queryFn: ()=> getListing(id) });
+  const { data: profile } = useQuery({ queryKey: ["me"], queryFn: meProfile, enabled: !!userId });
+  const isVerified = profile?.is_verified;
   
   const isOwnListing = listing?.owner_id === userId;
+
+  const sendVer = useMutation({
+    mutationFn: () => apiSendVerification(),
+    onSuccess: (res) => success(res.message || "Đã gửi email xác thực"),
+    onError: () => error("Gửi email thất bại")
+  });
 
   const { data: connectionStatus } = useQuery({
     queryKey: ["connection", id],
@@ -592,15 +602,24 @@ export default function ListingDetail(){
                         )}
                       </div>
                     ) : (
-                      <button
-                        onClick={() => setShowConnectModal(true)}
-                        className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
-                        Kết nối với chủ phòng
-                      </button>
+                      userId && !isVerified ? (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
+                          <div className="font-semibold text-yellow-800 text-sm">Xác thực email để kết nối</div>
+                          <button className="btn btn-outline btn-sm w-full" onClick={() => sendVer.mutate()} disabled={sendVer.isPending}>
+                            {sendVer.isPending ? 'Đang gửi...' : 'Gửi email xác thực'}
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setShowConnectModal(true)}
+                          className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                          </svg>
+                          Kết nối với chủ phòng
+                        </button>
+                      )
                     )}
                   </div>
                 )}

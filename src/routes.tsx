@@ -13,6 +13,7 @@ import RoomateGuide from "@/pages/RoomateGuide";
 import AdminApproval from "@/pages/AdminApproval";
 import Analytics from "@/pages/Analytics";
 import Connections from "@/pages/Connections";
+import VerifyEmail from "@/pages/VerifyEmail";
 import Shell from "@/shell";
 import { RequireAuth } from "@/app/guard";
 
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: "/listings", element: <Listings/> },
       { path: "/analytics", element: <Analytics/> },
       { path: "/guide", element: <RoomateGuide/> },
+      { path: "/auth/verify", element: <VerifyEmail/> },
       { element: <RequireAuth/>, children: [
         { path: "/listings/new", element: <NewListing/> },
         { path: "/listings/:id/edit", element: <EditListing/> },

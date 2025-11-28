@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { apiLogin, apiRegister } from "@/api/auth";
+import { apiLogin, apiRegister, apiSendVerification } from "@/api/auth";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,8 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<"login" | "register">(defaultTab);
+  const [showVerifyPrompt, setShowVerifyPrompt] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const { error, success } = useToastContext();
 
   const loginForm = useForm<LoginFormData>({
@@ -46,7 +48,13 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
     onSuccess: (res) => {
       localStorage.setItem("userId", res._id);
       localStorage.setItem("userRole", res.role || "USER");
-      success("Đăng nhập thành công!");
+      localStorage.setItem("isVerified", res.is_verified ? "true" : "false");
+      
+      if (!res.is_verified) {
+        success("Đăng nhập thành công! Hãy xác thực email để sử dụng đầy đủ tính năng.");
+      } else {
+        success("Đăng nhập thành công!");
+      }
       onClose();
       window.location.reload();
     },
@@ -61,14 +69,21 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
     onSuccess: (res) => {
       localStorage.setItem("userId", res._id);
       localStorage.setItem("userRole", res.role || "USER");
-      success("Đăng ký thành công!");
-      onClose();
-      window.location.reload();
+      localStorage.setItem("isVerified", "false");
+      setRegisteredEmail(res.email);
+      setShowVerifyPrompt(true);
+      apiSendVerification().catch(() => {});
     },
     onError: (err: AxiosError<{ detail?: string }>) => {
       const message = err.response?.data?.detail || "Đăng ký thất bại. Vui lòng thử lại.";
       error(message);
     },
+  });
+
+  const resendVerification = useMutation({
+    mutationFn: apiSendVerification,
+    onSuccess: () => success("Đã gửi lại email xác thực!"),
+    onError: () => error("Gửi email thất bại, vui lòng thử lại sau."),
   });
 
   const onLoginSubmit = (data: LoginFormData) => {
@@ -80,6 +95,49 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
   };
 
   if (!isOpen) return null;
+
+  if (showVerifyPrompt) {
+    return (
+      <>
+        <div className="fixed inset-0 bg-black/50 z-40" />
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold mb-2">Xác thực email</h3>
+            <p className="text-gray-600 mb-4">
+              Chúng tôi đã gửi email xác thực đến <span className="font-semibold">{registeredEmail}</span>. 
+              Vui lòng kiểm tra hộp thư và nhấn vào liên kết để kích hoạt tài khoản.
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              Bạn cần xác thực email để đăng tin và gửi yêu cầu kết nối.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => resendVerification.mutate()}
+                disabled={resendVerification.isPending}
+                className="btn btn-outline w-full"
+              >
+                {resendVerification.isPending ? "Đang gửi..." : "Gửi lại email"}
+              </button>
+              <button
+                onClick={() => {
+                  onClose();
+                  window.location.reload();
+                }}
+                className="btn btn-primary w-full"
+              >
+                Đã hiểu, tiếp tục
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

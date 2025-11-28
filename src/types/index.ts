@@ -86,6 +86,7 @@ export interface Profile {
   email?: string;
   phone?: string;
   role?: string;
+  is_verified?: boolean;
 }
 
 export interface ProfileIn {
@@ -174,6 +175,7 @@ export interface AuthResponse {
   name: string;
   phone: string;
   role: UserRole;
+  is_verified?: boolean;
 }
 
 export interface LoginPayload {

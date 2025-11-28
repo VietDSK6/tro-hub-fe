@@ -10,3 +10,8 @@ export async function apiLogin(body: LoginPayload) {
   const { data } = await http.post<AuthResponse>("/auth/login", body);
   return data;
 }
+
+export async function apiSendVerification() {
+  const { data } = await http.post<{sent: boolean; message?: string}>("/auth/send-verification");
+  return data;
+}

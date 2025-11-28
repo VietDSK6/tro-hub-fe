@@ -1,5 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createListing } from "@/api/listings";
+import { meProfile } from "@/api/profiles";
+import { apiSendVerification } from "@/api/auth";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +32,15 @@ export default function NewListing(){
     visitor: true
   });
   const { success, error } = useToastContext();
+
+  const { data: profile, isLoading: profileLoading } = useQuery({ queryKey: ["me"], queryFn: meProfile });
+  const isVerified = profile?.is_verified;
+
+  const sendVer = useMutation({
+    mutationFn: () => apiSendVerification(),
+    onSuccess: (res) => success(res.message || "Đã gửi email xác thực"),
+    onError: () => error("Gửi email thất bại")
+  });
   
   const { register, handleSubmit, setValue, formState:{errors} } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -61,6 +72,17 @@ export default function NewListing(){
   return (
     <div className="container-app p-4 max-w-7xl space-y-3">
       <h1 className="h1">Đăng tin</h1>
+      {profileLoading ? null : !isVerified && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-4">
+          <div className="flex-1">
+            <div className="font-semibold text-yellow-800">Xác thực email để đăng tin</div>
+            <div className="text-sm text-yellow-700">Bạn cần xác thực email trước khi đăng tin.</div>
+          </div>
+          <button className="btn btn-outline btn-sm" onClick={() => sendVer.mutate()} disabled={sendVer.isPending}>
+            {sendVer.isPending ? 'Đang gửi...' : 'Gửi email'}
+          </button>
+        </div>
+      )}
       <form className="space-y-3" onSubmit={handleSubmit((d)=> mutation.mutate(d))}>
         <div>
           <label className="label">Vị trí *</label>

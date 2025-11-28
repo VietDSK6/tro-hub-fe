@@ -157,6 +157,24 @@ export default function Listings() {
     setShowAreaDropdown(false);
   };
 
+  const openPriceDropdown = () => {
+    setShowPriceDropdown(!showPriceDropdown);
+    setShowAreaDropdown(false);
+    setShowFilterModal(false);
+  };
+
+  const openAreaDropdown = () => {
+    setShowAreaDropdown(!showAreaDropdown);
+    setShowPriceDropdown(false);
+    setShowFilterModal(false);
+  };
+
+  const openFilterModal = () => {
+    setShowFilterModal(!showFilterModal);
+    setShowPriceDropdown(false);
+    setShowAreaDropdown(false);
+  };
+
   const getSelectedPriceLabel = () => {
     if (!filters.priceMin && !filters.priceMax) return "Khoảng giá";
     const range = priceRanges.find(r => r.min === filters.priceMin && r.max === filters.priceMax);
@@ -218,7 +236,7 @@ export default function Listings() {
         <div className="container-app px-8 py-3">
           <div className="flex gap-3 items-center text-sm">
             <button 
-              onClick={() => setShowFilterModal(!showFilterModal)}
+              onClick={openFilterModal}
               className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showFilterModal ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,20 +250,6 @@ export default function Listings() {
               )}
             </button>
 
-            <button 
-              onClick={() => setFilters({ ...filters, verified: !filters.verified })}
-              className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${filters.verified ? 'bg-green-50 border-green-500' : 'hover:bg-gray-50'}`}
-            >
-              <span className={`w-4 h-4 rounded flex items-center justify-center ${filters.verified ? 'bg-green-500' : 'bg-gray-300'}`}>
-                {filters.verified && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </span>
-              Tin xác thực
-            </button>
-
             <div className="relative">
               <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50 opacity-50 cursor-not-allowed">
                 Loại phòng
@@ -257,8 +261,8 @@ export default function Listings() {
 
             <div className="relative">
               <button 
-                onClick={() => setShowPriceDropdown(!showPriceDropdown)}
-                className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50"
+                onClick={openPriceDropdown}
+                className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showPriceDropdown ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
               >
                 {getSelectedPriceLabel()}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -286,8 +290,8 @@ export default function Listings() {
 
             <div className="relative">
               <button 
-                onClick={() => setShowAreaDropdown(!showAreaDropdown)}
-                className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50"
+                onClick={openAreaDropdown}
+                className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showAreaDropdown ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
               >
                 {getSelectedAreaLabel()}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
