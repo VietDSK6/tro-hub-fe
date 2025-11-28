@@ -184,15 +184,15 @@ export default function Analytics() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-600">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-semibold text-gray-600">
                 Tổng số tin
               </div>
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-blue-600"
+                  className="w-6 h-6 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -206,23 +206,19 @@ export default function Analytics() {
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-4xl font-bold text-gray-900 mb-1">
               {overview.data?.total_listings || 0}
-            </div>
-            <div className="mt-2 flex items-center text-xs">
-              <span className="text-green-600 font-medium">+12.5%</span>
-              <span className="text-gray-500 ml-1">so với tháng trước</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-600">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-semibold text-gray-600">
                 Đang cho thuê
               </div>
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-green-600"
+                  className="w-6 h-6 text-green-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -236,23 +232,19 @@ export default function Analytics() {
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-4xl font-bold text-gray-900 mb-1">
               {overview.data?.active_listings || 0}
-            </div>
-            <div className="mt-2 flex items-center text-xs">
-              <span className="text-green-600 font-medium">+8.2%</span>
-              <span className="text-gray-500 ml-1">tin đang hoạt động</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-600">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-semibold text-gray-600">
                 Giá trung bình
               </div>
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-orange-600"
+                  className="w-6 h-6 text-orange-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -266,26 +258,20 @@ export default function Analytics() {
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-4xl font-bold text-gray-900 mb-1">
               {Math.round((overview.data?.price_stats.average || 0) / 1000000)}
               tr
             </div>
-            <div className="mt-2 flex items-center text-xs">
-              <span className="text-red-600 font-medium">-2.4%</span>
-              <span className="text-gray-500 ml-1">
-                giảm so với tháng trước
-              </span>
-            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-600">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-semibold text-gray-600">
                 Diện tích TB
               </div>
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-purple-600"
+                  className="w-6 h-6 text-purple-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -299,14 +285,8 @@ export default function Analytics() {
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-4xl font-bold text-gray-900 mb-1">
               {Math.round(overview.data?.area_stats.average || 0)}m²
-            </div>
-            <div className="mt-2 flex items-center text-xs">
-              <span className="text-green-600 font-medium">+5.1%</span>
-              <span className="text-gray-500 ml-1">
-                tăng so với tháng trước
-              </span>
             </div>
           </div>
         </div>
@@ -393,7 +373,7 @@ export default function Analytics() {
                         </span>
                       </div>
                     </div>
-                    <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden cursor-pointer">
                       <div
                         className={`h-full bg-gradient-to-r ${
                           colors[idx % colors.length].gradient
@@ -403,6 +383,32 @@ export default function Analytics() {
                         }}
                       >
                         <div className="h-full w-full animate-pulse opacity-30 bg-white"></div>
+                      </div>
+                    </div>
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block z-10 pointer-events-none">
+                      <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-xl">
+                        <div className="font-semibold mb-1.5 border-b border-gray-700 pb-1">
+                          {range.label}
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between gap-3">
+                            <span className="text-gray-400">Số lượng:</span>
+                            <span className="font-bold">{range.count} tin</span>
+                          </div>
+                          <div className="flex justify-between gap-3">
+                            <span className="text-gray-400">Tỷ lệ:</span>
+                            <span className="font-bold">{sharePercent}%</span>
+                          </div>
+                          <div className="flex justify-between gap-3">
+                            <span className="text-gray-400">DT TB:</span>
+                            <span className="font-bold">
+                              {Math.round(range.avg_area)}m²
+                            </span>
+                          </div>
+                        </div>
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
+                          <div className="border-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -499,7 +505,7 @@ export default function Analytics() {
                 ];
 
                 return (
-                  <div key={idx} className="group">
+                  <div key={idx} className="group relative">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <div
@@ -524,7 +530,7 @@ export default function Analytics() {
                         </span>
                       </div>
                     </div>
-                    <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden cursor-pointer">
                       <div
                         className={`h-full bg-gradient-to-r ${
                           colors[idx % colors.length].gradient
@@ -534,6 +540,32 @@ export default function Analytics() {
                         }}
                       >
                         <div className="h-full w-full animate-pulse opacity-30 bg-white"></div>
+                      </div>
+                    </div>
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block z-10 pointer-events-none">
+                      <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-xl">
+                        <div className="font-semibold mb-1.5 border-b border-gray-700 pb-1">
+                          {range.label}
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between gap-3">
+                            <span className="text-gray-400">Số lượng:</span>
+                            <span className="font-bold">{range.count} tin</span>
+                          </div>
+                          <div className="flex justify-between gap-3">
+                            <span className="text-gray-400">Tỷ lệ:</span>
+                            <span className="font-bold">{sharePercent}%</span>
+                          </div>
+                          <div className="flex justify-between gap-3">
+                            <span className="text-gray-400">Giá TB:</span>
+                            <span className="font-bold">
+                              {Math.round(range.avg_price / 1000000)}tr
+                            </span>
+                          </div>
+                        </div>
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
+                          <div className="border-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -583,117 +615,122 @@ export default function Analytics() {
                 Top tiện nghi phổ biến
               </h2>
             </div>
-            <div className="space-y-3">
-              {amenities.data?.amenities.slice(0, 8).map((amenity, idx) => {
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {amenities.data?.amenities.slice(0, 6).map((amenity, idx) => {
                 const maxCount = Math.max(
                   ...(amenities.data?.amenities
-                    .slice(0, 8)
+                    .slice(0, 6)
                     .map((a) => a.count) || [1])
                 );
-                const barWidth = (amenity.count / maxCount) * 100;
+                const percentage = (amenity.count / maxCount) * 100;
 
-                const colors = [
-                  {
-                    bg: "bg-blue-500",
-                    light: "bg-blue-100",
-                    text: "text-blue-700",
-                  },
-                  {
-                    bg: "bg-green-500",
-                    light: "bg-green-100",
-                    text: "text-green-700",
-                  },
-                  {
-                    bg: "bg-purple-500",
-                    light: "bg-purple-100",
-                    text: "text-purple-700",
-                  },
-                  {
-                    bg: "bg-orange-500",
-                    light: "bg-orange-100",
-                    text: "text-orange-700",
-                  },
-                  {
-                    bg: "bg-pink-500",
-                    light: "bg-pink-100",
-                    text: "text-pink-700",
-                  },
-                  {
-                    bg: "bg-cyan-500",
-                    light: "bg-cyan-100",
-                    text: "text-cyan-700",
-                  },
-                  {
-                    bg: "bg-red-500",
-                    light: "bg-red-100",
-                    text: "text-red-700",
-                  },
-                  {
-                    bg: "bg-indigo-500",
-                    light: "bg-indigo-100",
-                    text: "text-indigo-700",
-                  },
+                const gradients = [
+                  "from-blue-500 to-blue-600",
+                  "from-green-500 to-green-600",
+                  "from-purple-500 to-purple-600",
+                  "from-orange-500 to-orange-600",
+                  "from-pink-500 to-pink-600",
+                  "from-cyan-500 to-cyan-600",
+                ];
+
+                const bgColors = [
+                  "bg-blue-50",
+                  "bg-green-50",
+                  "bg-purple-50",
+                  "bg-orange-50",
+                  "bg-pink-50",
+                  "bg-cyan-50",
                 ];
 
                 return (
-                  <div key={idx} className="group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-32">
-                        <div className="text-sm font-semibold text-gray-900 truncate">
-                          {amenity.label}
+                  <div
+                    key={idx}
+                    className={`${
+                      bgColors[idx % bgColors.length]
+                    } rounded-xl p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group relative overflow-hidden`}
+                  >
+                    <div
+                      className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${
+                        gradients[idx % gradients.length]
+                      } opacity-10 rounded-bl-full`}
+                    ></div>
+
+                    <div className="relative z-10">
+                      <div className="flex items-start justify-between mb-3">
+                        <div
+                          className={`w-10 h-10 rounded-lg bg-gradient-to-br ${
+                            gradients[idx % gradients.length]
+                          } flex items-center justify-center text-white font-bold text-lg shadow-md`}
+                        >
+                          {idx + 1}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {amenity.count}
+                          </div>
+                          <div className="text-xs text-gray-500">tin đăng</div>
                         </div>
                       </div>
-                      <div className="flex-1 flex items-center gap-2">
-                        <div
-                          className={`relative flex-1 h-8 ${
-                            colors[idx % colors.length].light
-                          } rounded-lg overflow-hidden`}
-                        >
-                          <div
-                            className={`h-full ${
-                              colors[idx % colors.length].bg
-                            } transition-all duration-700 ease-out group-hover:opacity-90 flex items-center justify-end pr-3`}
-                            style={{ width: `${barWidth}%` }}
-                          >
-                            <span className="text-white text-xs font-bold">
-                              {amenity.count}
+
+                      <div className="mb-3">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                          {amenity.label}
+                        </h3>
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <svg
+                              className="w-3.5 h-3.5 text-green-600"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span>
+                              {Math.round(amenity.avg_price / 1000000)}tr
                             </span>
                           </div>
-                        </div>
-                        <div
-                          className={`flex-shrink-0 w-16 text-right text-sm font-bold ${
-                            colors[idx % colors.length].text
-                          }`}
-                        >
-                          {Math.round(barWidth)}%
+                          <span className="text-gray-400">•</span>
+                          <div className="flex items-center gap-1">
+                            <svg
+                              className="w-3.5 h-3.5 text-blue-600"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                            </svg>
+                            <span>{Math.round(amenity.avg_area)}m²</span>
+                          </div>
                         </div>
                       </div>
+
+                      <div className="relative h-2 bg-white rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-gradient-to-r ${
+                            gradients[idx % gradients.length]
+                          } rounded-full transition-all duration-1000 ease-out`}
+                          style={{
+                            width: animateCharts ? `${percentage}%` : "0%",
+                          }}
+                        >
+                          <div className="h-full w-full bg-white/30 animate-pulse"></div>
+                        </div>
+                      </div>
+                      <div className="mt-1 text-right">
+                        <span className="text-xs font-semibold text-gray-700">
+                          {Math.round(percentage)}%
+                        </span>
+                      </div>
                     </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   </div>
                 );
               })}
-            </div>
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {amenities.data?.amenities
-                      .slice(0, 8)
-                      .reduce((sum, a) => sum + a.count, 0) || 0}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Tổng lượt chọn
-                  </div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {amenities.data?.amenities[0]?.count || 0}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Phổ biến nhất
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -980,11 +1017,55 @@ export default function Analytics() {
                   visitor: "Khách thăm",
                 };
 
-                const icons: Record<string, string> = {
-                  pet: "🐾",
-                  smoke: "🚬",
-                  cook: "🍳",
-                  visitor: "👥",
+                const iconSvgs: Record<string, JSX.Element> = {
+                  pet: (
+                    <svg
+                      className="w-7 h-7 text-orange-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                      <circle cx="6" cy="6" r="1.5" />
+                      <circle cx="14" cy="6" r="1.5" />
+                      <circle cx="10" cy="4" r="1.5" />
+                      <circle cx="10" cy="9" r="2" />
+                    </svg>
+                  ),
+                  smoke: (
+                    <svg
+                      className="w-7 h-7 text-gray-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  ),
+                  cook: (
+                    <svg
+                      className="w-7 h-7 text-red-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  ),
+                  visitor: (
+                    <svg
+                      className="w-7 h-7 text-blue-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    </svg>
+                  ),
                 };
 
                 const allowedPercent =
@@ -998,7 +1079,7 @@ export default function Analytics() {
                     className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-2xl">{icons[key]}</span>
+                      <div className="flex-shrink-0">{iconSvgs[key]}</div>
                       <div className="text-sm font-semibold text-gray-900">
                         {labels[key]}
                       </div>
