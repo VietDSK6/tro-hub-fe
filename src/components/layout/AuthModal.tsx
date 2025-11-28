@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { useToastContext } from "@/contexts/ToastContext";
 import roomsImage from "@/assets/rooms.png";
+import { Mail, X } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -103,9 +104,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+              <Mail className="w-8 h-8 text-green-600" />
             </div>
             <h3 className="text-2xl font-bold mb-2">Xác thực email</h3>
             <p className="text-gray-600 mb-4">
@@ -168,9 +167,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "login" }: Aut
                   {activeTab === "login" ? "Đăng nhập" : "Đăng ký"}
                 </h3>
                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 

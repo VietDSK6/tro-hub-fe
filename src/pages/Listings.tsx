@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { listListings } from "@/api/listings";
 import ListingCard from "@/components/layout/ListingCard";
 import ListingsMap from "@/components/map/ListingsMap";
+import { Search, Map, Filter, ChevronDown, X, Mail } from "lucide-react";
 
 const priceRanges = [
   { label: "Tất cả", value: "" },
@@ -202,14 +202,7 @@ export default function Listings() {
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
-                <svg 
-                  className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
               <button 
                 onClick={handleSearch}
@@ -223,9 +216,7 @@ export default function Listings() {
               onClick={() => setShowMap(true)}
               className="btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
+              <Map className="w-5 h-5" />
               Xem bản đồ
             </button>
           </div>
@@ -239,9 +230,7 @@ export default function Listings() {
               onClick={openFilterModal}
               className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showFilterModal ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
+              <Filter className="w-4 h-4" />
               Lọc
               {hasActiveFilters() && (
                 <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
@@ -253,9 +242,7 @@ export default function Listings() {
             <div className="relative">
               <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50 opacity-50 cursor-not-allowed">
                 Loại phòng
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <ChevronDown className="w-4 h-4" />
               </button>
             </div>
 
@@ -265,9 +252,7 @@ export default function Listings() {
                 className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showPriceDropdown ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
               >
                 {getSelectedPriceLabel()}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <ChevronDown className="w-4 h-4" />
               </button>
               
               {showPriceDropdown && (
@@ -294,9 +279,7 @@ export default function Listings() {
                 className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showAreaDropdown ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
               >
                 {getSelectedAreaLabel()}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <ChevronDown className="w-4 h-4" />
               </button>
               
               {showAreaDropdown && (
@@ -322,9 +305,7 @@ export default function Listings() {
                 onClick={clearFilters}
                 className="flex items-center gap-2 px-3 py-2 border border-red-300 rounded-lg hover:bg-red-50 text-red-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-4 h-4" />
                 Xóa bộ lọc
               </button>
             )}
@@ -394,10 +375,7 @@ export default function Listings() {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-            </svg>
+            <Mail className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
             <div className="font-semibold">Nhận thông báo phòng trọ mới</div>

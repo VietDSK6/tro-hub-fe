@@ -8,6 +8,7 @@ import { apiSendVerification } from "@/api/auth";
 import { useToastContext } from "@/contexts/ToastContext";
 import { AxiosError } from "axios";
 import { useState } from "react";
+import { ChevronLeft, ChevronRight, MapPin, Building, Edit, Trash2, User, Users, MessageCircle, Phone, Heart, Share2, AlertTriangle, UserPlus, Mail, X, CheckCircle2 } from "lucide-react";
 import type { ListingConnection } from "@/types";
 
 function formatTimeAgo(dateString: string) {
@@ -155,18 +156,14 @@ export default function ListingDetail(){
                         onClick={prevImage}
                         className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100"
                       >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
+                        <ChevronLeft className="w-6 h-6" />
                       </button>
                       
                       <button 
                         onClick={nextImage}
                         className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100"
                       >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                        <ChevronRight className="w-6 h-6" />
                       </button>
                     </>
                   )}
@@ -194,10 +191,7 @@ export default function ListingDetail(){
               <h1 className="text-3xl font-bold text-gray-900 mb-4">{listing.title}</h1>
               
               <div className="flex items-center gap-2 text-gray-600 mb-4">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <MapPin className="w-5 h-5" />
                 <span className="text-sm">
                   {listing.location?.coordinates?.[1]?.toFixed(4)}, {listing.location?.coordinates?.[0]?.toFixed(4)}
                 </span>
@@ -269,9 +263,7 @@ export default function ListingDetail(){
                   <div className="flex flex-wrap gap-2">
                     {listing.amenities.map((amenity: string) => (
                       <span key={amenity} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
+                        <CheckCircle2 className="w-4 h-4" />
                         {amenitiesLabels[amenity] || amenity}
                       </span>
                     ))}
@@ -332,9 +324,7 @@ export default function ListingDetail(){
                   <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
+                        <Building className="w-6 h-6 text-blue-600" />
                       </div>
                       <div className="flex-1">
                         <div className="font-bold text-lg">Tin đăng của bạn</div>
@@ -347,18 +337,14 @@ export default function ListingDetail(){
                         to={`/listings/${id}/edit`}
                         className="flex-1 bg-white text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                        <Edit className="w-4 h-4" />
                         Chỉnh sửa
                       </Link>
                       <button 
                         onClick={() => setShowDeleteConfirm(true)}
                         className="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <Trash2 className="w-4 h-4" />
                         Xóa
                       </button>
                     </div>
@@ -380,9 +366,7 @@ export default function ListingDetail(){
                       </div>
                     ) : !listingConnections?.items?.length ? (
                       <div className="text-center py-6 text-gray-500">
-                        <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
                         <p className="text-sm">Chưa có yêu cầu kết nối</p>
                       </div>
                     ) : (
@@ -394,9 +378,7 @@ export default function ListingDetail(){
                                 {conn.from_profile?.avatar ? (
                                   <img src={conn.from_profile.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
                                 ) : (
-                                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                  </svg>
+                                  <User className="w-5 h-5 text-gray-400" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -442,16 +424,12 @@ export default function ListingDetail(){
                                 {conn.status === "ACCEPTED" && conn.from_user && (
                                   <div className="mt-2 pt-2 border-t space-y-1">
                                     <a href={`mailto:${conn.from_user.email}`} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                      </svg>
+                                      <Mail className="w-3 h-3" />
                                       {conn.from_user.email}
                                     </a>
                                     {conn.from_user.phone && (
                                       <a href={`tel:${conn.from_user.phone}`} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                        </svg>
+                                        <Phone className="w-3 h-3" />
                                         {conn.from_user.phone}
                                       </a>
                                     )}
@@ -477,9 +455,7 @@ export default function ListingDetail(){
                   <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-lg p-6 text-white">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <User className="w-8 h-8 text-teal-600" />
                   </div>
                   <div className="flex-1">
                     <div className="font-bold text-xl">{listing.owner?.name || "Chủ nhà"}</div>
@@ -499,9 +475,7 @@ export default function ListingDetail(){
                 </div>
 
                 <button className="w-full bg-white text-teal-600 font-bold py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mb-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
+                  <MessageCircle className="w-5 h-5" />
                   Chat qua Zalo
                 </button>
 
@@ -510,9 +484,7 @@ export default function ListingDetail(){
                     href={`tel:${listing.owner?.phone}`}
                     className="w-full bg-teal-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-800 transition-colors flex items-center justify-center gap-2"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
+                    <Phone className="w-5 h-5" />
                     {listing.owner?.phone || "0972 454 ***"}
                   </a>
                 ) : (
@@ -520,9 +492,7 @@ export default function ListingDetail(){
                     onClick={() => setShowPhoneNumber(true)}
                     className="w-full bg-teal-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-800 transition-colors flex items-center justify-center gap-2"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
+                    <Phone className="w-5 h-5" />
                     {listing.owner?.phone?.slice(0, 8) || "0972 454"} *** - Hiện số
                   </button>
                 )}
@@ -536,22 +506,16 @@ export default function ListingDetail(){
                     disabled={fav.isPending}
                     className="flex-1 flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                    <Heart className="w-5 h-5 text-red-500" />
                     <span className="text-sm font-medium">{fav.isPending ? "Đang lưu..." : "Lưu tin"}</span>
                   </button>
 
                   <button className="flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
+                    <Share2 className="w-5 h-5 text-gray-600" />
                   </button>
 
                   <button className="flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
+                    <AlertTriangle className="w-5 h-5 text-gray-600" />
                   </button>
                 </div>
 
@@ -570,23 +534,17 @@ export default function ListingDetail(){
                             <div className="font-medium text-green-800 mb-2">Đã kết nối thành công!</div>
                             <div className="space-y-1 text-sm">
                               <div className="flex items-center gap-2">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
+                                <User className="w-4 h-4 text-green-600" />
                                 <span className="text-gray-700">{connectionStatus.owner_contact.name}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
+                                <Mail className="w-4 h-4 text-green-600" />
                                 <a href={`mailto:${connectionStatus.owner_contact.email}`} className="text-blue-600 hover:underline">
                                   {connectionStatus.owner_contact.email}
                                 </a>
                               </div>
                               <div className="flex items-center gap-2">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                </svg>
+                                <Phone className="w-4 h-4 text-green-600" />
                                 <a href={`tel:${connectionStatus.owner_contact.phone}`} className="text-blue-600 hover:underline">
                                   {connectionStatus.owner_contact.phone}
                                 </a>
@@ -614,9 +572,7 @@ export default function ListingDetail(){
                           onClick={() => setShowConnectModal(true)}
                           className="w-full bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                          </svg>
+                          <UserPlus className="w-5 h-5" />
                           Kết nối với chủ phòng
                         </button>
                       )
@@ -665,9 +621,7 @@ export default function ListingDetail(){
                 onClick={() => setShowConnectModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -711,9 +665,7 @@ export default function ListingDetail(){
                 onClick={() => setShowDeleteConfirm(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-6 h-6" />
               </button>
             </div>
 

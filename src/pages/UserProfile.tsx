@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProfileByUserId } from "@/api/profiles";
+import { User, CheckCircle2, Edit, DollarSign, MapPin, Mail, Phone, Lock } from "lucide-react";
 
 export default function UserProfile() {
   const { userId = "" } = useParams();
@@ -35,9 +36,7 @@ export default function UserProfile() {
     return (
       <div className="container-app p-8">
         <div className="max-w-2xl mx-auto text-center py-12">
-          <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+          <User className="w-16 h-16 mx-auto text-gray-300 mb-4" />
           <h2 className="text-xl font-semibold text-gray-700 mb-2">Không tìm thấy người dùng</h2>
           <p className="text-gray-500 mb-4">Người dùng này không tồn tại hoặc đã bị xóa</p>
           <Link to="/listings" className="btn btn-primary">
@@ -77,9 +76,7 @@ export default function UserProfile() {
           <div className="px-6 pb-6">
             <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-12">
               <div className="w-24 h-24 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <User className="w-12 h-12 text-gray-400" />
               </div>
               
               <div className="flex-1">
@@ -101,9 +98,7 @@ export default function UserProfile() {
                   to="/profile" 
                   className="btn btn-primary flex items-center gap-2"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+                  <Edit className="w-4 h-4" />
                   Chỉnh sửa
                 </Link>
               )}
@@ -111,9 +106,7 @@ export default function UserProfile() {
 
             {profile.has_connection && (
               <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
                 <span className="text-sm text-green-800">Đã kết nối - Bạn có thể xem thông tin liên hệ</span>
               </div>
             )}
@@ -130,9 +123,7 @@ export default function UserProfile() {
                 {profile.budget && profile.budget > 0 && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center gap-2 text-gray-500 mb-1">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <DollarSign className="w-5 h-5" />
                       <span className="text-sm font-medium">Ngân sách</span>
                     </div>
                     <p className="text-lg font-semibold text-gray-900">
@@ -144,10 +135,7 @@ export default function UserProfile() {
                 {profile.desiredAreas && profile.desiredAreas.length > 0 && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center gap-2 text-gray-500 mb-1">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
+                      <MapPin className="w-5 h-5" />
                       <span className="text-sm font-medium">Khu vực mong muốn</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -183,9 +171,7 @@ export default function UserProfile() {
                   <div className="bg-blue-50 rounded-lg p-4 space-y-2">
                     {profile.email && (
                       <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
+                        <Mail className="w-5 h-5 text-blue-600" />
                         <a href={`mailto:${profile.email}`} className="text-blue-600 hover:underline">
                           {profile.email}
                         </a>
@@ -193,9 +179,7 @@ export default function UserProfile() {
                     )}
                     {profile.phone && (
                       <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
+                        <Phone className="w-5 h-5 text-blue-600" />
                         <a href={`tel:${profile.phone}`} className="text-blue-600 hover:underline">
                           {profile.phone}
                         </a>
@@ -208,9 +192,7 @@ export default function UserProfile() {
               {!profile.is_own_profile && !profile.has_connection && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                    <Lock className="w-5 h-5 text-yellow-600 mt-0.5" />
                     <div>
                       <p className="text-sm text-yellow-800 font-medium">Thông tin liên hệ bị ẩn</p>
                       <p className="text-sm text-yellow-600 mt-1">

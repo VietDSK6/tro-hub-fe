@@ -4,6 +4,7 @@ import { matchRooms } from "@/api/matching";
 import { useToastContext } from "@/contexts/ToastContext";
 import { useEffect, useRef } from "react";
 import ListingCard from "@/components/layout/ListingCard";
+import { AlertTriangle, Info } from "lucide-react";
 
 export default function Matching(){
   const navigate = useNavigate();
@@ -50,9 +51,7 @@ export default function Matching(){
       {isError && (
         <div className="card p-8 text-center space-y-4">
           <div className="text-red-600">
-            <svg className="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+            <AlertTriangle className="w-16 h-16 mx-auto mb-3" />
             <p className="text-lg font-semibold">Chưa thể sử dụng tính năng này</p>
             <p className="text-sm mt-2 text-gray-600">
               Bạn cần hoàn thiện hồ sơ cá nhân (ngân sách và vị trí) để chúng tôi có thể tìm phòng trọ phù hợp!
@@ -79,9 +78,7 @@ export default function Matching(){
           {/* Summary */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="font-semibold text-blue-900">Tìm thấy {data.items.length} phòng trọ phù hợp</p>
                 <p className="text-sm text-blue-700 mt-1">

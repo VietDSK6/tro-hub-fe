@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 
 mapboxgl.accessToken = "pk.eyJ1IjoidHJvLWh1YiIsImEiOiJjbTN4eWJ4eXowMDBjMmtzNWs3NjhpOHE3In0.qK1YqJxY6d9Q8YqQ7Z9Q8Q"; // Replace with your token
 
@@ -144,9 +145,7 @@ export default function ListingsMap({ listings, onClose }: Props) {
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="w-6 h-6" />
           </button>
         </div>
 
