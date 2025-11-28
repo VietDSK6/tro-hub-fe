@@ -6,9 +6,10 @@ import { checkConnection, createConnection, getConnectionsByListing, updateConne
 import { meProfile } from "@/api/profiles";
 import { apiSendVerification } from "@/api/auth";
 import { useToastContext } from "@/contexts/ToastContext";
+import { useAddress } from "@/hooks/useAddress";
 import { AxiosError } from "axios";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Building, Edit, Trash2, User, Users, MessageCircle, Phone, Heart, Share2, AlertTriangle, UserPlus, Mail, X, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Building, Edit, Trash2, User, Users, MessageCircle, Phone, Heart, Share2, AlertTriangle, UserPlus, Mail, X, CheckCircle2, Loader2 } from "lucide-react";
 import type { ListingConnection } from "@/types";
 
 function formatTimeAgo(dateString: string) {
@@ -23,6 +24,22 @@ function formatTimeAgo(dateString: string) {
   if (diffMins < 60) return `${diffMins} phút trước`;
   if (diffHours < 24) return `${diffHours} giờ trước`;
   return `${diffDays} ngày trước`;
+}
+
+function AddressDisplay({ address, coordinates }: { address?: string; coordinates?: [number, number] }) {
+  const { address: fetchedAddress, isLoading } = useAddress(address ? null : coordinates);
+  const displayAddress = address || fetchedAddress;
+  
+  return (
+    <div className="flex items-center gap-2 text-gray-600 mb-4">
+      <MapPin className="w-5 h-5 flex-shrink-0" />
+      {isLoading ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        <span className="text-sm">{displayAddress || "Chưa có địa chỉ"}</span>
+      )}
+    </div>
+  );
 }
 
 export default function ListingDetail(){
@@ -190,12 +207,7 @@ export default function ListingDetail(){
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">{listing.title}</h1>
               
-              <div className="flex items-center gap-2 text-gray-600 mb-4">
-                <MapPin className="w-5 h-5" />
-                <span className="text-sm">
-                  {listing.location?.coordinates?.[1]?.toFixed(4)}, {listing.location?.coordinates?.[0]?.toFixed(4)}
-                </span>
-              </div>
+              <AddressDisplay address={listing.address} coordinates={listing.location?.coordinates as [number, number]} />
 
               <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b">
                 <div>

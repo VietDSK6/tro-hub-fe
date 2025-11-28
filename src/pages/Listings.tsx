@@ -196,7 +196,7 @@ export default function Listings() {
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Tìm phòng trọ theo khu vực, giá..."
+                  placeholder="Tìm theo địa chỉ, quận, tiêu đề..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}

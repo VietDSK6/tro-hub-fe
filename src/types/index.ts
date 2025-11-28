@@ -33,6 +33,7 @@ export interface ListingIn {
   video?: string;
   status?: ListingStatus;
   location: GeoPoint;
+  address?: string;
   verification_status?: VerificationStatus;
 }
 
@@ -53,6 +54,7 @@ export interface ListingPreview {
   area?: number;
   images?: string[];
   location: GeoPoint;
+  address?: string;
   status?: ListingStatus;
   owner_id?: string;
 }
@@ -68,6 +70,7 @@ export interface ListingPatch {
   video?: string;
   status?: ListingStatus;
   location?: GeoPoint;
+  address?: string;
   verification_status?: VerificationStatus;
 }
 

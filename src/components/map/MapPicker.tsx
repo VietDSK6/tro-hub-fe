@@ -2,8 +2,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MapPin, Navigation, Search, X, Loader2, CheckCircle2 } from "lucide-react";
+import { shortenAddress } from "@/utils/address";
 
-mapboxgl.accessToken = "pk.eyJ1IjoidmlldGRzMjYwMSIsImEiOiJjbWk4eHVjNmswaHczMm1vcGwyZXo4dmJqIn0.FBHbH2CHHcuTja4_LK74Yw";
+const MAPBOX_TOKEN = "pk.eyJ1IjoidmlldGRzMjYwMSIsImEiOiJjbWk4eHVjNmswaHczMm1vcGwyZXo4dmJqIn0.FBHbH2CHHcuTja4_LK74Yw";
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
 type Props = { 
   value?: [number, number] | null;
@@ -24,7 +26,6 @@ export default function MapPicker({
 }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const centerMarkerEl = useRef<HTMLDivElement | null>(null);
   
   const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(value || null);
   const [address, setAddress] = useState<string>("");
@@ -39,16 +40,16 @@ export default function MapPicker({
     setIsLoadingAddress(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}&language=vi`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=vi`
       );
       const data = await response.json();
-      if (data.features && data.features.length > 0) {
-        setAddress(data.features[0].place_name);
+      if (data.display_name) {
+        setAddress(shortenAddress(data.display_name));
       } else {
-        setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        setAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
       }
-    } catch (error) {
-      setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+    } catch {
+      setAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
     }
     setIsLoadingAddress(false);
   }, []);
@@ -61,11 +62,11 @@ export default function MapPicker({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&language=vi&country=vn&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=vn&limit=5&accept-language=vi`
       );
       const data = await response.json();
-      setSearchResults(data.features || []);
-    } catch (error) {
+      setSearchResults(data || []);
+    } catch {
       setSearchResults([]);
     }
     setIsSearching(false);
@@ -130,10 +131,11 @@ export default function MapPicker({
   }, [value, mapReady]);
 
   const selectSearchResult = (result: any) => {
-    const [lng, lat] = result.center;
+    const lng = parseFloat(result.lon);
+    const lat = parseFloat(result.lat);
     setSearchQuery("");
     setSearchResults([]);
-    setAddress(result.place_name);
+    setAddress(shortenAddress(result.display_name));
     setSelectedLocation([lng, lat]);
     onChange?.(lng, lat);
     
@@ -234,16 +236,16 @@ export default function MapPicker({
 
             {searchResults.length > 0 && (
               <div className="absolute left-3 right-3 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-64 overflow-y-auto">
-                {searchResults.map((result: any) => (
+                {searchResults.map((result: any, index: number) => (
                   <button
-                    key={result.id}
+                    key={result.place_id || index}
                     onClick={() => selectSearchResult(result)}
                     className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-start gap-3 border-b last:border-b-0"
                   >
                     <MapPin className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{result.text}</div>
-                      <div className="text-xs text-gray-500 line-clamp-1">{result.place_name}</div>
+                      <div className="text-sm font-medium text-gray-900">{result.name || shortenAddress(result.display_name)}</div>
+                      <div className="text-xs text-gray-500 line-clamp-1">{result.display_name}</div>
                     </div>
                   </button>
                 ))}
@@ -290,13 +292,8 @@ export default function MapPicker({
               {isLoadingAddress ? (
                 <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4" />
               ) : (
-                <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                <div className="text-sm font-medium text-gray-900">
                   {address || "Chưa chọn vị trí"}
-                </div>
-              )}
-              {selectedLocation && (
-                <div className="text-xs text-gray-400 mt-1">
-                  {selectedLocation[1].toFixed(6)}, {selectedLocation[0].toFixed(6)}
                 </div>
               )}
             </div>

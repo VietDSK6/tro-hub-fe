@@ -11,6 +11,7 @@ type Listing = {
   title: string;
   price?: number;
   area?: number;
+  address?: string;
   location?: {
     type: string;
     coordinates: [number, number];
@@ -87,6 +88,7 @@ export default function ListingsMap({ listings, onClose }: Props) {
           <h3 class="font-semibold text-sm mb-1 line-clamp-2">${listing.title}</h3>
           <p class="text-red-600 font-bold text-sm">${(listing.price || 0).toLocaleString()} VNĐ</p>
           <p class="text-gray-600 text-xs">${listing.area || 0} m²</p>
+          ${listing.address ? `<p class="text-gray-500 text-xs mt-1">${listing.address}</p>` : ''}
         </div>
       `;
 
