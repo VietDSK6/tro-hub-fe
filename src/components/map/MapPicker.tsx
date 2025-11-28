@@ -1,100 +1,307 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { MapPin, Navigation, Search, X, Loader2, CheckCircle2 } from "lucide-react";
 
-mapboxgl.accessToken = "pk.eyJ1IjoidmlldGRzMjYwMSIsImEiOiJjbWk4eHVjNmswaHczMm1vcGwyZXo4dmJqIn0.FBHbH2CHHcuTja4_LK74Yw"; // Replace with your token
+mapboxgl.accessToken = "pk.eyJ1IjoidmlldGRzMjYwMSIsImEiOiJjbWk4eHVjNmswaHczMm1vcGwyZXo4dmJqIn0.FBHbH2CHHcuTja4_LK74Yw";
 
 type Props = { 
   value?: [number, number] | null;
   onChange?: (lng: number, lat: number) => void;
   children?: React.ReactNode;
+  height?: string;
+  showSearch?: boolean;
+  label?: string;
 };
 
-export default function MapPicker({ value, onChange, children }: Props) {
+export default function MapPicker({ 
+  value, 
+  onChange, 
+  children, 
+  height = "500px",
+  showSearch = true,
+  label = "Chọn vị trí"
+}: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const marker = useRef<mapboxgl.Marker | null>(null);
-  const [lng, setLng] = useState(value?.[0] || 105.83);
-  const [lat, setLat] = useState(value?.[1] || 21.03);
-  const [zoom, setZoom] = useState(13);
+  const centerMarkerEl = useRef<HTMLDivElement | null>(null);
+  
+  const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(value || null);
+  const [address, setAddress] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
-  // Initialize map
+  const getAddressFromCoords = useCallback(async (lng: number, lat: number) => {
+    setIsLoadingAddress(true);
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}&language=vi`
+      );
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        setAddress(data.features[0].place_name);
+      } else {
+        setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+      }
+    } catch (error) {
+      setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+    }
+    setIsLoadingAddress(false);
+  }, []);
+
+  const searchAddress = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&language=vi&country=vn&limit=5`
+      );
+      const data = await response.json();
+      setSearchResults(data.features || []);
+    } catch (error) {
+      setSearchResults([]);
+    }
+    setIsSearching(false);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchAddress(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchAddress]);
+
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
+
+    const initialCenter: [number, number] = value || [105.83, 21.03];
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v12",
-      center: [lng, lat],
-      zoom: zoom,
+      center: initialCenter,
+      zoom: 14,
     });
 
-    map.current.on("move", () => {
-      if (!map.current) return;
-      setLng(parseFloat(map.current.getCenter().lng.toFixed(4)));
-      setLat(parseFloat(map.current.getCenter().lat.toFixed(4)));
-      setZoom(parseFloat(map.current.getZoom().toFixed(2)));
-    });
+    map.current.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
-    map.current.on("click", (e) => {
-      const { lng, lat } = e.lngLat;
-      setLng(lng);
-      setLat(lat);
-      onChange?.(lng, lat);
-      
-      // Update or create marker
-      if (marker.current) {
-        marker.current.setLngLat([lng, lat]);
-      } else {
-        marker.current = new mapboxgl.Marker({ color: "#ef4444" })
-          .setLngLat([lng, lat])
-          .addTo(map.current!);
+    map.current.on("load", () => {
+      setMapReady(true);
+      if (value) {
+        getAddressFromCoords(value[0], value[1]);
       }
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    map.current.on("moveend", () => {
+      if (!map.current) return;
+      const center = map.current.getCenter();
+      const newLocation: [number, number] = [center.lng, center.lat];
+      setSelectedLocation(newLocation);
+      onChange?.(center.lng, center.lat);
+      getAddressFromCoords(center.lng, center.lat);
+    });
 
     return () => {
-      marker.current?.remove();
       map.current?.remove();
+      map.current = null;
     };
   }, []);
 
   useEffect(() => {
-    if (!map.current || !value) return;
-
-    const [newLng, newLat] = value;
+    if (!map.current || !mapReady || !value) return;
     
-    if (marker.current) {
-      marker.current.setLngLat([newLng, newLat]);
-    } else {
-      marker.current = new mapboxgl.Marker({ color: "#ef4444" })
-        .setLngLat([newLng, newLat])
-        .addTo(map.current);
+    const [lng, lat] = value;
+    const center = map.current.getCenter();
+    
+    if (Math.abs(center.lng - lng) > 0.0001 || Math.abs(center.lat - lat) > 0.0001) {
+      map.current.flyTo({
+        center: [lng, lat],
+        zoom: 15,
+        duration: 1000,
+      });
     }
+  }, [value, mapReady]);
 
-    map.current.flyTo({
-      center: [newLng, newLat],
-      zoom: 13,
+  const selectSearchResult = (result: any) => {
+    const [lng, lat] = result.center;
+    setSearchQuery("");
+    setSearchResults([]);
+    setAddress(result.place_name);
+    setSelectedLocation([lng, lat]);
+    onChange?.(lng, lat);
+    
+    map.current?.flyTo({
+      center: [lng, lat],
+      zoom: 16,
+      duration: 1000,
     });
+  };
 
-    setLng(newLng);
-    setLat(newLat);
-  }, [value]);
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Trình duyệt không hỗ trợ định vị");
+      return;
+    }
+    
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { longitude, latitude } = position.coords;
+        setSelectedLocation([longitude, latitude]);
+        onChange?.(longitude, latitude);
+        getAddressFromCoords(longitude, latitude);
+        
+        map.current?.flyTo({
+          center: [longitude, latitude],
+          zoom: 16,
+          duration: 1000,
+        });
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Không thể lấy vị trí hiện tại");
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 h-[600px]">
-      {/* Left side - Content */}
-      <div className="flex-1 overflow-y-auto">
-        {children}
-      </div>
-
-      {/* Right side - Map */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-gray-100 px-4 py-2 text-sm text-gray-600 rounded-t-lg">
-          Vị trí: {lat.toFixed(4)}, {lng.toFixed(4)} | Zoom: {zoom}
+    <div className="space-y-4">
+      {children && (
+        <div className="space-y-4">
+          {children}
         </div>
-        <div ref={mapContainer} className="flex-1 rounded-b-lg" />
+      )}
+
+      <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 px-4 py-3">
+          <div className="flex items-center gap-2 text-white">
+            <MapPin className="w-5 h-5" />
+            <span className="font-medium">{label}</span>
+          </div>
+        </div>
+
+        {showSearch && (
+          <div className="p-3 bg-white border-b relative">
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm địa chỉ, khu vực..."
+                  className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSearchResults([]);
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                {isSearching && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500 animate-spin" />
+                )}
+              </div>
+              <button
+                onClick={getCurrentLocation}
+                disabled={isLocating}
+                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium disabled:opacity-50"
+                title="Vị trí hiện tại"
+              >
+                {isLocating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Navigation className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">Vị trí của tôi</span>
+              </button>
+            </div>
+
+            {searchResults.length > 0 && (
+              <div className="absolute left-3 right-3 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-64 overflow-y-auto">
+                {searchResults.map((result: any) => (
+                  <button
+                    key={result.id}
+                    onClick={() => selectSearchResult(result)}
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-start gap-3 border-b last:border-b-0"
+                  >
+                    <MapPin className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{result.text}</div>
+                      <div className="text-xs text-gray-500 line-clamp-1">{result.place_name}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="relative" style={{ height }}>
+          <div ref={mapContainer} className="w-full h-full" />
+          
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 pointer-events-none">
+            <div className="relative animate-bounce">
+              <MapPin className="w-10 h-10 text-red-500 drop-shadow-lg" fill="#ef4444" />
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-1 bg-black/20 rounded-full blur-sm" />
+            </div>
+          </div>
+
+          {!mapReady && (
+            <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
+                <span className="text-sm text-gray-600">Đang tải bản đồ...</span>
+              </div>
+            </div>
+          )}
+
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm pointer-events-none">
+            Kéo bản đồ để chọn vị trí
+          </div>
+        </div>
+
+        <div className="p-4 bg-gray-50 border-t">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+              {isLoadingAddress ? (
+                <Loader2 className="w-5 h-5 text-green-600 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-gray-500 mb-1">Vị trí đã chọn</div>
+              {isLoadingAddress ? (
+                <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4" />
+              ) : (
+                <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                  {address || "Chưa chọn vị trí"}
+                </div>
+              )}
+              {selectedLocation && (
+                <div className="text-xs text-gray-400 mt-1">
+                  {selectedLocation[1].toFixed(6)}, {selectedLocation[0].toFixed(6)}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

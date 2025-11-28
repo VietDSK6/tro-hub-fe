@@ -253,29 +253,13 @@ export default function Profile(){
 
         <div>
           <label className="label">Vị trí mong muốn</label>
-          <p className="text-xs text-gray-500 mb-2">Chọn vị trí trên bản đồ</p>
-          <MapPicker value={point} onChange={onPick}>
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Hướng dẫn chọn vị trí</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Click vào bản đồ để chọn vị trí mong muốn</li>
-                  <li>• Kéo thả để di chuyển bản đồ</li>
-                  <li>• Sử dụng nút +/- để phóng to/thu nhỏ</li>
-                </ul>
-              </div>
-              
-              {point && (
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-2">Vị trí đã chọn</h4>
-                  <p className="text-sm text-gray-700">
-                    Kinh độ: {point[0].toFixed(6)}<br/>
-                    Vĩ độ: {point[1].toFixed(6)}
-                  </p>
-                </div>
-              )}
-            </div>
-          </MapPicker>
+          <p className="text-xs text-gray-500 mb-3">Chọn khu vực bạn muốn tìm phòng trọ</p>
+          <MapPicker 
+            value={point} 
+            onChange={onPick}
+            height="350px"
+            label="Vị trí mong muốn"
+          />
         </div>
 
         <div className="pt-2">

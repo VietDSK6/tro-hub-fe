@@ -83,182 +83,197 @@ export default function NewListing(){
           </button>
         </div>
       )}
-      <form className="space-y-3" onSubmit={handleSubmit((d)=> mutation.mutate(d))}>
-        <div>
-          <label className="label">Vị trí *</label>
-          <p className="text-xs text-gray-500 mb-2">Chọn vị trí chính xác trên bản đồ</p>
-          <MapPicker value={point} onChange={onPick}>
-            <div className="card p-4 space-y-3">
-              <div>
-                <label className="label">Tiêu đề *</label>
-                <input className="input w-full" placeholder="Phòng trọ Quận 3, gần trường..." {...register("title")}/>
-                {errors.title && <div className="text-xs text-red-600 mt-1">{errors.title.message}</div>}
-              </div>
-              <div>
-                <label className="label">Mô tả chi tiết</label>
-                <textarea className="input w-full h-28" placeholder="Giới thiệu về phòng trọ, tiện ích, quy định..." {...register("desc")}/>
-              </div>
-              <div>
-                <label className="label">Giá thuê (VNĐ/tháng) *</label>
-                <input className="input w-full" type="number" step="100000" placeholder="3000000" {...register("price")}/>
-                {errors.price && <div className="text-xs text-red-600 mt-1">{errors.price.message}</div>}
-              </div>
-              
-              <div>
-                <label className="label">Diện tích (m²) *</label>
-                <input className="input w-full" type="number" step="1" placeholder="25" {...register("area")}/>
-                {errors.area && <div className="text-xs text-red-600 mt-1">{errors.area.message}</div>}
-              </div>
-
-              <div>
-                <label className="label">Tiện ích</label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={amenities.includes("ac")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAmenities([...amenities, "ac"]);
-                        } else {
-                          setAmenities(amenities.filter(a => a !== "ac"));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">Điều hòa</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={amenities.includes("wifi")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAmenities([...amenities, "wifi"]);
-                        } else {
-                          setAmenities(amenities.filter(a => a !== "wifi"));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">Wifi</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={amenities.includes("parking")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAmenities([...amenities, "parking"]);
-                        } else {
-                          setAmenities(amenities.filter(a => a !== "parking"));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">Chỗ để xe</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={amenities.includes("water_heater")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAmenities([...amenities, "water_heater"]);
-                        } else {
-                          setAmenities(amenities.filter(a => a !== "water_heater"));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">Nóng lạnh</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={amenities.includes("washing_machine")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAmenities([...amenities, "washing_machine"]);
-                        } else {
-                          setAmenities(amenities.filter(a => a !== "washing_machine"));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">Máy giặt</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={amenities.includes("fridge")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAmenities([...amenities, "fridge"]);
-                        } else {
-                          setAmenities(amenities.filter(a => a !== "fridge"));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">Tủ lạnh</span>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label className="label">Quy định</label>
-                <div className="space-y-2 mt-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={rules.pet}
-                      onChange={(e) => setRules({...rules, pet: e.target.checked})}
-                    />
-                    <span className="text-sm">Cho phép nuôi thú cưng</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={rules.smoke}
-                      onChange={(e) => setRules({...rules, smoke: e.target.checked})}
-                    />
-                    <span className="text-sm">Cho phép hút thuốc</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={rules.cook}
-                      onChange={(e) => setRules({...rules, cook: e.target.checked})}
-                    />
-                    <span className="text-sm">Cho phép nấu ăn</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4"
-                      checked={rules.visitor}
-                      onChange={(e) => setRules({...rules, visitor: e.target.checked})}
-                    />
-                    <span className="text-sm">Cho phép khách thăm</span>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label className="label">Hình ảnh</label>
-                <ImageUpload value={images} onChange={setImages} maxImages={5} />
-              </div>
-              {(errors.lng || errors.lat) && <div className="text-xs text-red-600">Vui lòng chọn vị trí trên bản đồ</div>}
+      <form className="space-y-6" onSubmit={handleSubmit((d)=> mutation.mutate(d))}>
+        {/* Basic Info Card */}
+        <div className="card p-6 space-y-4">
+          <h2 className="text-lg font-semibold border-b pb-2">Thông tin cơ bản</h2>
+          
+          <div>
+            <label className="label">Tiêu đề *</label>
+            <input className="input w-full" placeholder="Phòng trọ Quận 3, gần trường..." {...register("title")}/>
+            {errors.title && <div className="text-xs text-red-600 mt-1">{errors.title.message}</div>}
+          </div>
+          
+          <div>
+            <label className="label">Mô tả chi tiết</label>
+            <textarea className="input w-full h-28" placeholder="Giới thiệu về phòng trọ, tiện ích, quy định..." {...register("desc")}/>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="label">Giá thuê (VNĐ/tháng) *</label>
+              <input className="input w-full" type="number" step="100000" placeholder="3000000" {...register("price")}/>
+              {errors.price && <div className="text-xs text-red-600 mt-1">{errors.price.message}</div>}
             </div>
-          </MapPicker>
-          {(errors.lng || errors.lat) && <div className="text-xs text-red-600 mt-1">Vui lòng chọn vị trí trên bản đồ</div>}
+            <div>
+              <label className="label">Diện tích (m²) *</label>
+              <input className="input w-full" type="number" step="1" placeholder="25" {...register("area")}/>
+              {errors.area && <div className="text-xs text-red-600 mt-1">{errors.area.message}</div>}
+            </div>
+          </div>
         </div>
+
+        {/* Location Card */}
+        <div className="card p-6 space-y-4">
+          <h2 className="text-lg font-semibold border-b pb-2">Vị trí phòng trọ</h2>
+          <MapPicker 
+            value={point} 
+            onChange={onPick}
+            height="400px"
+            label="Chọn vị trí phòng trọ"
+          />
+          {(errors.lng || errors.lat) && <div className="text-xs text-red-600">Vui lòng chọn vị trí trên bản đồ</div>}
+        </div>
+
+        <div className="card p-6 space-y-4">
+          <h2 className="text-lg font-semibold border-b pb-2">Tiện ích & Quy định</h2>
+          
+          <div>
+            <label className="label">Tiện ích</label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={amenities.includes("ac")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAmenities([...amenities, "ac"]);
+                    } else {
+                      setAmenities(amenities.filter(a => a !== "ac"));
+                    }
+                  }}
+                />
+                <span className="text-sm">Điều hòa</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={amenities.includes("wifi")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAmenities([...amenities, "wifi"]);
+                    } else {
+                      setAmenities(amenities.filter(a => a !== "wifi"));
+                    }
+                  }}
+                />
+                <span className="text-sm">Wifi</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={amenities.includes("parking")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAmenities([...amenities, "parking"]);
+                    } else {
+                      setAmenities(amenities.filter(a => a !== "parking"));
+                    }
+                  }}
+                />
+                <span className="text-sm">Chỗ để xe</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={amenities.includes("water_heater")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAmenities([...amenities, "water_heater"]);
+                    } else {
+                      setAmenities(amenities.filter(a => a !== "water_heater"));
+                    }
+                  }}
+                />
+                <span className="text-sm">Nóng lạnh</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={amenities.includes("washing_machine")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAmenities([...amenities, "washing_machine"]);
+                    } else {
+                      setAmenities(amenities.filter(a => a !== "washing_machine"));
+                    }
+                  }}
+                />
+                <span className="text-sm">Máy giặt</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={amenities.includes("fridge")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAmenities([...amenities, "fridge"]);
+                    } else {
+                      setAmenities(amenities.filter(a => a !== "fridge"));
+                    }
+                  }}
+                />
+                <span className="text-sm">Tủ lạnh</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="label">Quy định</label>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={rules.pet}
+                  onChange={(e) => setRules({...rules, pet: e.target.checked})}
+                />
+                <span className="text-sm">Cho phép nuôi thú cưng</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={rules.smoke}
+                  onChange={(e) => setRules({...rules, smoke: e.target.checked})}
+                />
+                <span className="text-sm">Cho phép hút thuốc</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={rules.cook}
+                  onChange={(e) => setRules({...rules, cook: e.target.checked})}
+                />
+                <span className="text-sm">Cho phép nấu ăn</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 border">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 accent-red-500"
+                  checked={rules.visitor}
+                  onChange={(e) => setRules({...rules, visitor: e.target.checked})}
+                />
+                <span className="text-sm">Cho phép khách thăm</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-6 space-y-4">
+          <h2 className="text-lg font-semibold border-b pb-2">Hình ảnh</h2>
+          <ImageUpload value={images} onChange={setImages} maxImages={5} />
+        </div>
+
         <div className="pt-2">
-          <button className="btn btn-primary w-full" type="submit" disabled={mutation.isPending}>
+          <button className="btn btn-primary w-full py-3 text-base font-semibold" type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? "Đang tạo tin..." : "Đăng tin"}
           </button>
         </div>
