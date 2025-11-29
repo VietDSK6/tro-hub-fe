@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { listListings } from "@/api/listings";
+import { getProvinces } from "@/api/provinces";
 import ListingCard from "@/components/layout/ListingCard";
 import ListingsMap from "@/components/map/ListingsMap";
-import { Search, Map, Filter, ChevronDown, X, Mail } from "lucide-react";
+import { Search, Map, Filter, ChevronDown, X, Loader2, MapPin } from "lucide-react";
 
 const priceRanges = [
   { label: "Tất cả", value: "" },
@@ -53,12 +54,32 @@ export default function Listings() {
   });
   const [showPriceDropdown, setShowPriceDropdown] = useState(false);
   const [showAreaDropdown, setShowAreaDropdown] = useState(false);
+  const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
+  const [selectedProvince, setSelectedProvince] = useState<string>("");
+  const [provinceSearch, setProvinceSearch] = useState("");
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["listings", searchTerm, filters, sortBy],
-    queryFn: () => listListings({ 
+  const { data: provincesData } = useQuery({
+    queryKey: ["provinces"],
+    queryFn: getProvinces,
+    staleTime: Infinity,
+  });
+
+  const filteredProvinces = provincesData?.filter(p => 
+    p.name.toLowerCase().includes(provinceSearch.toLowerCase())
+  ) ?? [];
+
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["listings", searchTerm, filters, sortBy, selectedProvince],
+    queryFn: ({ pageParam = 1 }) => listListings({ 
       q: searchTerm || undefined,
-      page: 1, 
+      page: pageParam, 
       limit: 20,
       min_price: filters.priceMin,
       max_price: filters.priceMax,
@@ -69,17 +90,46 @@ export default function Listings() {
       smoke: filters.rules.smoke,
       cook: filters.rules.cook,
       visitor: filters.rules.visitor,
+      province: selectedProvince || undefined,
       exclude_own: true,
     }),
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((sum, page) => sum + page.items.length, 0);
+      if (totalLoaded < lastPage.total) {
+        return allPages.length + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
   });
+
+  const allListings = data?.pages.flatMap(page => page.items) ?? [];
+  const totalListings = data?.pages[0]?.total ?? 0;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleSearch = () => {
     setSearchTerm(searchQuery);
   };
 
-  const sortedListings = () => {
-    if (!data?.items) return [];
-    const items = [...data.items];
+  const sortedListings = useCallback(() => {
+    if (!allListings.length) return [];
+    const items = [...allListings];
     
     switch (sortBy) {
       case "price-asc":
@@ -93,7 +143,7 @@ export default function Listings() {
       default:
         return items;
     }
-  };
+  }, [allListings, sortBy]);
 
   const toggleAmenity = (amenity: string) => {
     setFilters(prev => ({
@@ -129,6 +179,7 @@ export default function Listings() {
         visitor: undefined,
       },
     });
+    setSelectedProvince("");
   };
 
   const hasActiveFilters = () => {
@@ -140,7 +191,8 @@ export default function Listings() {
            filters.rules.pet !== undefined ||
            filters.rules.smoke !== undefined ||
            filters.rules.cook !== undefined ||
-           filters.rules.visitor !== undefined;
+           filters.rules.visitor !== undefined ||
+           selectedProvince !== "";
   };
 
   const handlePriceSelect = (range: typeof priceRanges[0]) => {
@@ -157,15 +209,30 @@ export default function Listings() {
     setShowAreaDropdown(false);
   };
 
+  const handleProvinceSelect = (provinceName: string) => {
+    setSelectedProvince(provinceName);
+    setShowProvinceDropdown(false);
+    setProvinceSearch("");
+  };
+
   const openPriceDropdown = () => {
     setShowPriceDropdown(!showPriceDropdown);
     setShowAreaDropdown(false);
+    setShowProvinceDropdown(false);
     setShowFilterModal(false);
   };
 
   const openAreaDropdown = () => {
     setShowAreaDropdown(!showAreaDropdown);
     setShowPriceDropdown(false);
+    setShowProvinceDropdown(false);
+    setShowFilterModal(false);
+  };
+
+  const openProvinceDropdown = () => {
+    setShowProvinceDropdown(!showProvinceDropdown);
+    setShowPriceDropdown(false);
+    setShowAreaDropdown(false);
     setShowFilterModal(false);
   };
 
@@ -173,6 +240,7 @@ export default function Listings() {
     setShowFilterModal(!showFilterModal);
     setShowPriceDropdown(false);
     setShowAreaDropdown(false);
+    setShowProvinceDropdown(false);
   };
 
   const getSelectedPriceLabel = () => {
@@ -225,7 +293,7 @@ export default function Listings() {
 
       <div className="bg-white border-b">
         <div className="container-app px-8 py-3">
-          <div className="flex gap-3 items-center text-sm">
+          <div className="flex gap-3 items-center text-sm flex-wrap">
             <button 
               onClick={openFilterModal}
               className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showFilterModal ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
@@ -234,10 +302,53 @@ export default function Listings() {
               Lọc
               {hasActiveFilters() && (
                 <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {filters.amenities.length + Object.values(filters.rules).filter(v => v !== undefined).length}
+                  {filters.amenities.length + Object.values(filters.rules).filter(v => v !== undefined).length + (selectedProvince ? 1 : 0)}
                 </span>
               )}
             </button>
+
+            <div className="relative">
+              <button 
+                onClick={openProvinceDropdown}
+                className={`flex items-center gap-2 px-3 py-2 border rounded-lg ${showProvinceDropdown ? 'bg-red-50 border-red-500' : 'hover:bg-gray-50'}`}
+              >
+                <MapPin className="w-4 h-4" />
+                {selectedProvince || "Tỉnh / TP"}
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              
+              {showProvinceDropdown && (
+                <div className="absolute top-full mt-2 left-0 bg-white border rounded-lg shadow-lg z-20 w-72">
+                  <div className="p-2 border-b">
+                    <input
+                      type="text"
+                      placeholder="Tìm tỉnh/thành phố..."
+                      value={provinceSearch}
+                      onChange={(e) => setProvinceSearch(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="max-h-64 overflow-y-auto p-2">
+                    <button
+                      onClick={() => handleProvinceSelect("")}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50 rounded font-medium text-gray-600"
+                    >
+                      Tất cả tỉnh/thành
+                    </button>
+                    {filteredProvinces.map((province) => (
+                      <button
+                        key={province.code}
+                        onClick={() => handleProvinceSelect(province.name)}
+                        className={`w-full text-left px-3 py-2 hover:bg-gray-50 rounded ${selectedProvince === province.name ? 'bg-red-50 text-red-600' : ''}`}
+                      >
+                        {province.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="relative">
               <button className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50 opacity-50 cursor-not-allowed">
@@ -367,10 +478,10 @@ export default function Listings() {
         </div>
       )}
 
-      <div className="container-app px-8 pb-8">
+      <div className="container-app px-8 pb-8 pt-8">
         <h1 className="text-2xl font-bold mb-2">Tìm phòng trọ phù hợp</h1>
         <p className="text-gray-600 mb-6">
-          Hiện có {sortedListings().length} phòng trọ.
+          Hiện có {totalListings} phòng trọ.
         </p>
 
         <div className="flex justify-end mb-4">
@@ -393,11 +504,25 @@ export default function Listings() {
             <p className="mt-4 text-gray-600">Đang tải...</p>
           </div>
         ) : sortedListings().length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedListings().map((listing: any) => (
-              <ListingCard key={listing._id} listing={listing} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedListings().map((listing: any) => (
+                <ListingCard key={listing._id} listing={listing} />
+              ))}
+            </div>
+            
+            <div ref={loadMoreRef} className="py-8 text-center">
+              {isFetchingNextPage && (
+                <div className="flex items-center justify-center gap-2 text-gray-500">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Đang tải thêm...</span>
+                </div>
+              )}
+              {!hasNextPage && allListings.length > 0 && (
+                <p className="text-gray-500 text-sm">Đã hiển thị tất cả {totalListings} phòng trọ</p>
+              )}
+            </div>
+          </>
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-600">Không tìm thấy phòng trọ nào</p>
@@ -405,9 +530,9 @@ export default function Listings() {
         )}
       </div>
 
-      {showMap && data?.items && (
+      {showMap && allListings.length > 0 && (
         <ListingsMap 
-          listings={data.items} 
+          listings={allListings} 
           onClose={() => setShowMap(false)} 
         />
       )}

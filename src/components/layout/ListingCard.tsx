@@ -20,12 +20,12 @@ export default function ListingCard({ listing }: { listing: any }){
           <div className="font-semibold line-clamp-1">{listing.title}</div>
           <span className="badge flex-shrink-0 ml-2">{(listing.price ?? 0).toLocaleString()} đ</span>
         </div>
-        {listing.address && (
+        {/* {listing.address && (
           <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
             <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="line-clamp-1">{listing.address}</span>
           </div>
-        )}
+        )} */}
         <div className="text-sm text-gray-500 mt-1 line-clamp-2">{listing.desc || "—"}</div>
       </div>
     </Link>

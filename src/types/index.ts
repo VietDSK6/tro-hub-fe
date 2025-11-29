@@ -85,6 +85,7 @@ export interface Profile {
   age?: number;
   constraints?: Record<string, any>;
   location?: GeoPoint;
+  avatar?: string;
   full_name?: string;
   email?: string;
   phone?: string;
@@ -101,6 +102,7 @@ export interface ProfileIn {
   age?: number;
   constraints?: Record<string, any>;
   location?: GeoPoint;
+  avatar?: string;
 }
 
 export interface PublicProfile {
@@ -114,6 +116,7 @@ export interface PublicProfile {
   habits?: Record<string, any>;
   desiredAreas?: string[];
   location?: GeoPoint;
+  avatar?: string;
   is_own_profile: boolean;
   has_connection: boolean;
   email?: string;

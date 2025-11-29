@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { meProfile, upsertMeProfile } from "@/api/profiles";
 import { apiSendVerification } from "@/api/auth";
+import { uploadImages } from "@/api/upload";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +9,7 @@ import MapPicker from "@/components/map/MapPicker";
 import { useState, useEffect } from "react";
 import { AxiosError } from "axios";
 import { useToastContext } from "@/contexts/ToastContext";
+import { User, Camera } from "lucide-react";
 
 const schema = z.object({
   full_name: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
@@ -32,6 +34,8 @@ export default function Profile(){
     resolver: zodResolver(schema),
   });
   const [point, setPoint] = useState<[number,number]|null>(null);
+  const [avatar, setAvatar] = useState<string>("");
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const { success, error } = useToastContext();
 
   const sendVer = useMutation({
@@ -61,6 +65,8 @@ export default function Profile(){
       sleepTime: data.habits?.sleepTime || "",
     });
     
+    if (data.avatar) setAvatar(data.avatar);
+    
     const c = data?.location?.coordinates;
     if (c && c.length === 2) { 
       setPoint([c[0], c[1]]); 
@@ -74,6 +80,7 @@ export default function Profile(){
       const payload: any = {
         bio: d.bio, 
         budget: d.budget,
+        avatar: avatar || null,
         habits: {
           smoke: d.smoke || false,
           pet: d.pet || false,
@@ -111,6 +118,30 @@ export default function Profile(){
     setValue("lat", lat); 
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      error("Ảnh quá lớn. Tối đa 5MB");
+      return;
+    }
+    
+    setAvatarUploading(true);
+    try {
+      const result = await uploadImages([file]);
+      if (result.urls.length > 0) {
+        setAvatar(result.urls[0]);
+        success("Đã tải ảnh đại diện");
+      }
+    } catch (err: any) {
+      error(err.response?.data?.detail || "Tải ảnh thất bại");
+    } finally {
+      setAvatarUploading(false);
+      e.target.value = "";
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container-app p-4 max-w-2xl">
@@ -125,6 +156,34 @@ export default function Profile(){
       
       <div className="card p-6 space-y-4">
         <h2 className="h2">Thông tin tài khoản</h2>
+        
+        <div className="flex items-center gap-6 pb-4 border-b">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200">
+              {avatar ? (
+                <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-10 h-10 text-gray-400" />
+              )}
+            </div>
+            <label className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                disabled={avatarUploading}
+                className="hidden"
+              />
+              <Camera className="w-4 h-4 text-white" />
+            </label>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">{data?.full_name || "Chưa cập nhật"}</p>
+            <p className="text-sm text-gray-500">{data?.email}</p>
+            {avatarUploading && <p className="text-xs text-blue-600 mt-1">Đang tải ảnh...</p>}
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="label">Họ tên</label>

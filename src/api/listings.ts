@@ -3,6 +3,7 @@ import type { Listing, ListingIn, ListingPatch, ListingsParams, PaginatedRespons
 
 export interface ListingsQueryParams extends ListingsParams {
   exclude_own?: boolean;
+  province?: string;
 }
 
 export async function listListings(params: ListingsQueryParams) {

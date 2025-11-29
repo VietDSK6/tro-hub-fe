@@ -48,23 +48,25 @@ export default function UserProfile() {
   }
 
   const habitsLabels: Record<string, string> = {
-    smoking: "Hút thuốc",
-    drinking: "Uống rượu bia",
-    pets: "Nuôi thú cưng",
-    nightOwl: "Thức khuya",
-    earlyBird: "Dậy sớm",
-    clean: "Sạch sẽ",
-    quiet: "Yên tĩnh",
-    social: "Thích giao lưu"
+    smoke: "Hút thuốc",
+    pet: "Nuôi thú cưng",
+    cook: "Nấu ăn",
+    sleepTime: "Thời gian ngủ"
   };
 
-  const habitsValues: Record<string, string> = {
-    never: "Không bao giờ",
-    sometimes: "Thỉnh thoảng",
-    often: "Thường xuyên",
-    always: "Luôn luôn",
-    yes: "Có",
-    no: "Không"
+  const formatHabitValue = (key: string, value: any): string => {
+    if (key === "sleepTime") {
+      const sleepLabels: Record<string, string> = {
+        early: "Ngủ sớm (trước 22h)",
+        late: "Ngủ muộn (sau 23h)",
+        flexible: "Linh hoạt"
+      };
+      return sleepLabels[value] || String(value);
+    }
+    if (typeof value === "boolean") {
+      return value ? "Có" : "Không";
+    }
+    return String(value);
   };
 
   return (
@@ -75,8 +77,12 @@ export default function UserProfile() {
           
           <div className="px-6 pb-6">
             <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-12">
-              <div className="w-24 h-24 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-                <User className="w-12 h-12 text-gray-400" />
+              <div className="w-24 h-24 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
+                {profile.avatar ? (
+                  <img src={profile.avatar} alt={profile.full_name || "Avatar"} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-12 h-12 text-gray-400" />
+                )}
               </div>
               
               <div className="flex-1">
@@ -157,7 +163,7 @@ export default function UserProfile() {
                       <div key={key} className="flex items-center gap-2 text-sm">
                         <span className="text-gray-600">{habitsLabels[key] || key}:</span>
                         <span className="font-medium text-gray-900">
-                          {habitsValues[value as string] || String(value)}
+                          {formatHabitValue(key, value)}
                         </span>
                       </div>
                     ))}

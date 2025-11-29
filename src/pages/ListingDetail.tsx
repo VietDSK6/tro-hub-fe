@@ -490,24 +490,6 @@ export default function ListingDetail(){
                   <MessageCircle className="w-5 h-5" />
                   Chat qua Zalo
                 </button>
-
-                {showPhoneNumber ? (
-                  <a 
-                    href={`tel:${listing.owner?.phone}`}
-                    className="w-full bg-teal-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-800 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Phone className="w-5 h-5" />
-                    {listing.owner?.phone || "0972 454 ***"}
-                  </a>
-                ) : (
-                  <button 
-                    onClick={() => setShowPhoneNumber(true)}
-                    className="w-full bg-teal-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-800 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Phone className="w-5 h-5" />
-                    {listing.owner?.phone?.slice(0, 8) || "0972 454"} *** - Hiện số
-                  </button>
-                )}
               </div>
 
               <div className="bg-white rounded-lg shadow-sm p-4">
