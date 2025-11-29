@@ -1,16 +1,19 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { UseQueryOptions } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, Link } from "react-router-dom";
 import { matchRooms } from "@/api/matching";
-import { getListing } from "@/api/listings";
 import { useToastContext } from "@/contexts/ToastContext";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AlertTriangle, Info, MapPin, Sparkles, Target } from "lucide-react";
-import type { Listing } from "@/types";
 
 interface MatchItem {
-  listing: Listing;
+  listing: {
+    _id: string;
+    title: string;
+    desc?: string;
+    price?: number;
+    images?: string[];
+    address?: string;
+  };
   score: number;
   price_match: number;
   distance_km?: number;
@@ -21,41 +24,21 @@ export default function Matching() {
   const { error: showError } = useToastContext();
   const toastShownRef = useRef(false);
   
-  const queryClient = useQueryClient();
-
-  type MatchResponse = { items: MatchItem[] };
-
-  const queryOptions: UseQueryOptions<MatchResponse, AxiosError> = {
-    queryKey: ["matching"],
+  const { data, isLoading, error, isError } = useQuery({ 
+    queryKey: ["matching"], 
     queryFn: () => matchRooms(20),
-    retry: false,
-    staleTime: 1000 * 60 * 2,
-    // onError/onSuccess handlers cause type issues with this project's query types,
-    // handle errors and prefetching with useEffect below instead.
-  };
+    retry: false
+  });
 
-  const { data, isLoading, isError, error } = useQuery(queryOptions);
-
-  // Show toast on specific errors (keep behavior from before)
   useEffect(() => {
     if (isError && error && !toastShownRef.current) {
-      const err = error as AxiosError;
+      const err = error as any;
       if (err?.response?.status === 400 || err?.status === 400) {
-        showError("Vui lòng hoàn thiện hồ sơ cá nhân (ngân sách và vị trí) để sử dụng tính năng gợi ý!");
+        showError("Vui lòng hoàn thiện hồ sơ của bạn để sử dụng tính năng gợi ý!");
         toastShownRef.current = true;
       }
     }
   }, [isError, error, showError]);
-
-  // Prefetch listing details when data arrives
-  useEffect(() => {
-    if (data?.items) {
-      data.items.forEach((it) => {
-        const id = it.listing?._id;
-        if (id) queryClient.prefetchQuery({ queryKey: ["listing", id], queryFn: () => getListing(id) });
-      });
-    }
-  }, [data, queryClient]);
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -94,8 +77,7 @@ export default function Matching() {
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Target className="w-8 h-8 text-gray-400" />
-            </div>
-<p className="text-gray-600 font-medium">Chưa tìm thấy phòng trọ phù hợp</p>
+            </div><p className="text-gray-600 font-medium">Chưa tìm thấy phòng trọ phù hợp</p>
             <p className="text-sm text-gray-500 mt-1">Hãy thử điều chỉnh hồ sơ hoặc quay lại sau!</p>
             <Link to="/listings" className="btn btn-primary mt-4 inline-block">
               Xem tất cả phòng trọ
