@@ -34,7 +34,7 @@ export interface OverviewAnalytics {
 
 export interface LocationAnalytics {
   top_locations: Array<{
-    coordinates: [number, number];
+    address: string;
     count: number;
     avg_price: number;
     min_price: number;

@@ -1,5 +1,5 @@
 interface LocationData {
-  coordinates: [number, number];
+  address: string;
   count: number;
   avg_price: number;
   avg_area: number;
@@ -46,10 +46,11 @@ export default function LocationTable({ locations }: LocationTableProps) {
                     <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">
                       {idx + 1}
                     </div>
-                    <span className="font-medium text-gray-900">
-                      {location.coordinates[1].toFixed(2)},{" "}
-                      {location.coordinates[0].toFixed(2)}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium text-gray-900 line-clamp-1">
+                        {location.address}
+                      </span>
+                    </div>
                   </div>
                 </td>
                 <td className="text-right py-3 px-2 font-semibold text-gray-900">

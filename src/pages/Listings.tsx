@@ -373,20 +373,6 @@ export default function Listings() {
           Hiện có {sortedListings().length} phòng trọ.
         </p>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-            <Mail className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <div className="font-semibold">Nhận thông báo phòng trọ mới</div>
-            <div className="text-sm text-gray-600">Đăng ký để nhận email khi có phòng phù hợp</div>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" className="sr-only peer" />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-400"></div>
-          </label>
-        </div>
-
         <div className="flex justify-end mb-4">
           <select 
             className="border rounded-lg px-4 py-2 text-sm"
