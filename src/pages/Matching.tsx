@@ -1,19 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { UseQueryOptions } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { matchRooms } from "@/api/matching";
+import { getListing } from "@/api/listings";
 import { useToastContext } from "@/contexts/ToastContext";
-import { useEffect, useRef } from "react";
+import { useRef, useEffect } from "react";
 import { AlertTriangle, Info, MapPin, Sparkles, Target } from "lucide-react";
+import type { Listing } from "@/types";
 
 interface MatchItem {
-  listing: {
-    _id: string;
-    title: string;
-    desc?: string;
-    price?: number;
-    images?: string[];
-    address?: string;
-  };
+  listing: Listing;
   score: number;
   price_match: number;
   distance_km?: number;
@@ -24,21 +21,41 @@ export default function Matching() {
   const { error: showError } = useToastContext();
   const toastShownRef = useRef(false);
   
-  const { data, isLoading, error, isError } = useQuery({ 
-    queryKey: ["matching"], 
-    queryFn: () => matchRooms(20),
-    retry: false
-  });
+  const queryClient = useQueryClient();
 
+  type MatchResponse = { items: MatchItem[] };
+
+  const queryOptions: UseQueryOptions<MatchResponse, AxiosError> = {
+    queryKey: ["matching"],
+    queryFn: () => matchRooms(20),
+    retry: false,
+    staleTime: 1000 * 60 * 2,
+    // onError/onSuccess handlers cause type issues with this project's query types,
+    // handle errors and prefetching with useEffect below instead.
+  };
+
+  const { data, isLoading, isError, error } = useQuery(queryOptions);
+
+  // Show toast on specific errors (keep behavior from before)
   useEffect(() => {
     if (isError && error && !toastShownRef.current) {
-      const err = error as any;
+      const err = error as AxiosError;
       if (err?.response?.status === 400 || err?.status === 400) {
-        showError("Vui lòng hoàn thiện hồ sơ của bạn để sử dụng tính năng gợi ý!");
+        showError("Vui lòng hoàn thiện hồ sơ cá nhân (ngân sách và vị trí) để sử dụng tính năng gợi ý!");
         toastShownRef.current = true;
       }
     }
   }, [isError, error, showError]);
+
+  // Prefetch listing details when data arrives
+  useEffect(() => {
+    if (data?.items) {
+      data.items.forEach((it) => {
+        const id = it.listing?._id;
+        if (id) queryClient.prefetchQuery({ queryKey: ["listing", id], queryFn: () => getListing(id) });
+      });
+    }
+  }, [data, queryClient]);
   
   return (
     <div className="min-h-screen bg-gray-50">
