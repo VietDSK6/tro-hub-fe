@@ -11,6 +11,7 @@ import UserProfile from "@/pages/UserProfile";
 import Matching from "@/pages/Matching";
 import RoomateGuide from "@/pages/RoomateGuide";
 import AdminApproval from "@/pages/AdminApproval";
+import AdminReports from "@/pages/AdminReports";
 import Analytics from "@/pages/Analytics";
 import Connections from "@/pages/Connections";
 import VerifyEmail from "@/pages/VerifyEmail";
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
         { path: "/matching", element: <Matching/> },
         { path: "/connections", element: <Connections/> },
         { path: "/admin/approval", element: <AdminApproval/> },
+        { path: "/admin/reports", element: <AdminReports/> },
       ]},
       { path: "/listings/:id", element: <ListingDetail/> }
     ]

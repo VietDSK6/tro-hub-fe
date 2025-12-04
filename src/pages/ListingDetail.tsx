@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getListing, deleteListing } from "@/api/listings";
 import { addFavorite } from "@/api/favorites";
 import { checkConnection, createConnection, getConnectionsByListing, updateConnectionStatus } from "@/api/connections";
+import { createReport } from "@/api/reports";
 import { meProfile } from "@/api/profiles";
 import { apiSendVerification } from "@/api/auth";
 import { useToastContext } from "@/contexts/ToastContext";
@@ -52,6 +53,8 @@ export default function ListingDetail(){
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connectMessage, setConnectMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
   const userId = localStorage.getItem("userId");
   
   const { data: listing } = useQuery({ queryKey:["listing", id], queryFn: ()=> getListing(id) });
@@ -121,6 +124,19 @@ export default function ListingDetail(){
     },
     onError: (err: AxiosError<{detail?: string}>) => {
       const message = err.response?.data?.detail || "Xóa tin thất bại";
+      error(message);
+    }
+  });
+
+  const reportMutation = useMutation({
+    mutationFn: () => createReport(id, reportReason),
+    onSuccess: () => {
+      success("Đã gửi báo cáo. Cảm ơn bạn đã phản hồi!");
+      setShowReportModal(false);
+      setReportReason("");
+    },
+    onError: (err: AxiosError<{detail?: string}>) => {
+      const message = err.response?.data?.detail || "Gửi báo cáo thất bại";
       error(message);
     }
   });
@@ -508,8 +524,22 @@ export default function ListingDetail(){
                     <Share2 className="w-5 h-5 text-gray-600" />
                   </button>
 
-                  <button className="flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <AlertTriangle className="w-5 h-5 text-gray-600" />
+                  <button 
+                    onClick={() => {
+                      if (!userId) {
+                        error("Vui lòng đăng nhập để báo cáo");
+                        return;
+                      }
+                      if (!isVerified) {
+                        error("Bạn cần xác thực email trước khi báo cáo");
+                        return;
+                      }
+                      setShowReportModal(true);
+                    }}
+                    className="flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors"
+                    title="Báo cáo vi phạm"
+                  >
+                    <AlertTriangle className="w-5 h-5 text-gray-600 hover:text-red-500" />
                   </button>
                 </div>
 
@@ -680,6 +710,74 @@ export default function ListingDetail(){
                 className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {deleteListingMutation.isPending ? "Đang xóa..." : "Xóa tin"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                Báo cáo tin đăng
+              </h3>
+              <button 
+                onClick={() => setShowReportModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              Vui lòng cho chúng tôi biết lý do bạn báo cáo tin đăng này. Báo cáo sẽ được admin xem xét.
+            </p>
+
+            <div className="space-y-3 mb-4">
+              {["Thông tin sai sự thật", "Nội dung không phù hợp", "Lừa đảo / Scam", "Tin trùng lặp", "Khác"].map((reason) => (
+                <label key={reason} className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="report-reason"
+                    value={reason}
+                    checked={reportReason === reason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-4 h-4 text-red-600"
+                  />
+                  <span className="text-sm text-gray-700">{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            {reportReason === "Khác" && (
+              <textarea
+                value={reportReason === "Khác" ? "" : reportReason}
+                onChange={(e) => setReportReason(e.target.value || "Khác")}
+                placeholder="Mô tả chi tiết lý do..."
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent mb-4"
+                rows={3}
+              />
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReportReason("");
+                }}
+                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => reportMutation.mutate()}
+                disabled={reportMutation.isPending || !reportReason}
+                className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {reportMutation.isPending ? "Đang gửi..." : "Gửi báo cáo"}
               </button>
             </div>
           </div>

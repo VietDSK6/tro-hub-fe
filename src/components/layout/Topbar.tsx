@@ -6,7 +6,7 @@ import { meProfile } from "@/api/profiles";
 import { getUnreadCount } from "@/api/notifications";
 import NotificationModal from "./NotificationModal";
 import { useAuthModal } from "@/contexts/AuthModalContext";
-import { Bell, ChevronDown, User, Users, Building2, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Users, Building2, LogOut, AlertTriangle, CheckSquare } from "lucide-react";
 
 export default function Topbar(){
   const { isAuthed, isAdmin, logout } = useAuth();
@@ -96,6 +96,28 @@ export default function Topbar(){
                       Kết nối của tôi
                     </div>
                   </Link>
+                  {isAdmin && (
+                    <>
+                      <Link 
+                        to="/admin/approval" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <div className="flex items-center gap-2">
+                          <CheckSquare className="w-4 h-4" />
+                          Duyệt tin đăng
+                        </div>
+                      </Link>
+                      <Link 
+                        to="/admin/reports" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4" />
+                          Báo cáo vi phạm
+                        </div>
+                      </Link>
+                    </>
+                  )}
                   {!isAdmin && (
                     <Link 
                       to="/my-listings" 
