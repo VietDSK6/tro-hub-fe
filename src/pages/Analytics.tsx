@@ -38,7 +38,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import { Bar, Doughnut } from "react-chartjs-2";
+
 import StatCard from "@/components/analytics/StatCard";
 import DistributionChart from "@/components/analytics/DistributionChart";
 import AmenityCard from "@/components/analytics/AmenityCard";
@@ -116,82 +116,7 @@ export default function Analytics() {
     );
   }
 
-  const totalPriceListings =
-    priceRanges.data?.price_ranges.reduce((sum, r) => sum + r.count, 0) || 0;
 
-  const priceChartData = {
-    labels: priceRanges.data?.price_ranges.map((r) => r.label) || [],
-    datasets: [
-      {
-        label: "Số lượng tin",
-        data: priceRanges.data?.price_ranges.map((r) => r.count) || [],
-        backgroundColor: [
-          "rgba(59, 130, 246, 0.9)",
-          "rgba(16, 185, 129, 0.9)",
-          "rgba(245, 158, 11, 0.9)",
-          "rgba(239, 68, 68, 0.9)",
-          "rgba(139, 92, 246, 0.9)",
-          "rgba(236, 72, 153, 0.9)",
-          "rgba(99, 102, 241, 0.9)",
-        ],
-        borderColor: ["rgb(255, 255, 255)"],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const areaChartData = {
-    labels: areaRanges.data?.area_ranges.map((r) => r.label) || [],
-    datasets: [
-      {
-        label: "Số lượng tin",
-        data: areaRanges.data?.area_ranges.map((r) => r.count) || [],
-        backgroundColor: [
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(34, 197, 94, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(168, 85, 247, 0.8)",
-          "rgba(236, 72, 153, 0.8)",
-          "rgba(20, 184, 166, 0.8)",
-        ],
-        borderColor: [
-          "rgb(239, 68, 68)",
-          "rgb(245, 158, 11)",
-          "rgb(34, 197, 94)",
-          "rgb(59, 130, 246)",
-          "rgb(168, 85, 247)",
-          "rgb(236, 72, 153)",
-          "rgb(20, 184, 166)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const amenitiesChartData = {
-    labels: amenities.data?.amenities.slice(0, 8).map((a) => a.label) || [],
-    datasets: [
-      {
-        label: "Số lượng",
-        data: amenities.data?.amenities.slice(0, 8).map((a) => a.count) || [],
-        backgroundColor: "rgba(59, 130, 246, 0.7)",
-        borderColor: "rgb(59, 130, 246)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top" as const,
-      },
-    },
-  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
