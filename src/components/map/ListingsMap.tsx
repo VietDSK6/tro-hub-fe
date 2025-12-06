@@ -4,7 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 
-mapboxgl.accessToken = "pk.eyJ1IjoidHJvLWh1YiIsImEiOiJjbTN4eWJ4eXowMDBjMmtzNWs3NjhpOHE3In0.qK1YqJxY6d9Q8YqQ7Z9Q8Q"; // Replace with your token
+mapboxgl.accessToken = "pk.eyJ1IjoidHJvLWh1YiIsImEiOiJjbTN4eWJ4eXowMDBjMmtzNWs3NjhpOHE3In0.qK1YqJxY6d9Q8YqQ7Z9Q8Q";
 
 type Listing = {
   _id: string;
@@ -28,15 +28,14 @@ export default function ListingsMap({ listings, onClose }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
+  const currentPopup = useRef<mapboxgl.Popup | null>(null);
   const navigate = useNavigate();
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Default center (Vietnam center)
-    const defaultCenter: [number, number] = [106.66, 10.77]; // Ho Chi Minh City
+    const defaultCenter: [number, number] = [105.804817, 21.028511];
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -59,11 +58,9 @@ export default function ListingsMap({ listings, onClose }: Props) {
     };
   }, []);
 
-  // Update markers when listings change
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
 
-    // Clear existing markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
@@ -76,9 +73,8 @@ export default function ListingsMap({ listings, onClose }: Props) {
 
       const [lng, lat] = listing.location.coordinates;
 
-      // Create popup content
       const popupContent = document.createElement("div");
-      popupContent.className = "p-2 min-w-[200px]";
+      popupContent.className = "p-2 min-w-[200px] z-50";
       popupContent.innerHTML = `
         <div class="cursor-pointer" data-listing-id="${listing._id}">
           ${listing.images && listing.images[0] 
@@ -92,7 +88,6 @@ export default function ListingsMap({ listings, onClose }: Props) {
         </div>
       `;
 
-      // Add click handler to popup
       popupContent.addEventListener("click", (e) => {
         const listingId = (e.currentTarget as HTMLElement).querySelector("[data-listing-id]")?.getAttribute("data-listing-id");
         if (listingId) {
@@ -103,10 +98,17 @@ export default function ListingsMap({ listings, onClose }: Props) {
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: true,
-        closeOnClick: false,
+        closeOnClick: true,
+        maxWidth: "300px",
+        className: "listing-popup"
       }).setDOMContent(popupContent);
 
-      // Create custom marker element with price
+      popup.on("close", () => {
+        if (currentPopup.current === popup) {
+          currentPopup.current = null;
+        }
+      });
+
       const el = document.createElement("div");
       el.className = "bg-red-500 text-white px-3 py-1 rounded-full font-semibold text-xs cursor-pointer hover:bg-red-600 transition-colors shadow-lg border-2 border-white";
       el.textContent = `${((listing.price || 0) / 1000000).toFixed(1)}tr`;
@@ -116,16 +118,23 @@ export default function ListingsMap({ listings, onClose }: Props) {
         .setPopup(popup)
         .addTo(map.current);
 
-      // Show popup on marker click
-      el.addEventListener("click", () => {
-        popup.addTo(map.current!);
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (currentPopup.current && currentPopup.current !== popup) {
+          currentPopup.current.remove();
+        }
+        marker.togglePopup();
+        if (marker.getPopup().isOpen()) {
+          currentPopup.current = popup;
+        } else {
+          currentPopup.current = null;
+        }
       });
 
       markers.current.push(marker);
       bounds.extend([lng, lat]);
     });
 
-    // Fit map to markers
     if (listings.length > 0) {
       map.current.fitBounds(bounds, {
         padding: 50,
@@ -145,7 +154,7 @@ export default function ListingsMap({ listings, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
           >
             <X className="w-6 h-6" />
           </button>
