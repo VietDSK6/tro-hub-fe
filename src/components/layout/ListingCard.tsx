@@ -6,15 +6,19 @@ export default function ListingCard({ listing }: { listing: any }){
   
   return (
     <Link to={`/listings/${listing._id}`} className="card p-0 block hover:shadow-md transition overflow-hidden">
-      {firstImage && (
-        <div className="w-full h-40 overflow-hidden">
+      <div className="w-full h-40 overflow-hidden bg-gray-100">
+        {firstImage ? (
           <img 
             src={firstImage} 
             alt={listing.title} 
             className="w-full h-full object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
+            Không có ảnh
+          </div>
+        )}
+      </div>
       <div className="p-3">
         <div className="flex justify-between items-start">
           <div className="font-semibold line-clamp-1">{listing.title}</div>
